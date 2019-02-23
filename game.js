@@ -39,10 +39,13 @@ PIXI.loader
   .load(setup);
 
 
+let player
+
 //This `setup` function will run when the image has loaded
 function setup() {
 	//Create the `tileset` sprite from the texture
-	let texture = PIXI.utils.TextureCache[mainCharacter];
+    // let texture = PIXI.utils.TextureCache[mainCharacter];
+    let texture = PIXI.BaseTexture.fromImage(mainCharacter);
 
   // // Create the cat sprite
   // let player = new PIXI.Sprite(PIXI.loader.resources[mainCharacter].texture);
@@ -50,17 +53,24 @@ function setup() {
   //Create a rectangle object that defines the position and
   //size of the sub-image you want to extract from the texture
   //(`Rectangle` is an alias for `PIXI.Rectangle`)
+
+  let textures = [];
+
   for (var i=0;i<3;i++) {
-  	for (var j=0;j<2;j++) {
-  		let rectangle = new PIXI.Rectangle(i*128,j*128,128,128);
-  		texture.frame = rectangle;
+    for (var j=0;j<2;j++) {
+      let rectangle = new PIXI.Rectangle(i*128,j*128,128,128);
+      let smallTexture = new PIXI.Texture(texture, rectangle);
 
-  		let player = new PIXI.Sprite(texture);
-
-  		player.position.set(64,64);
-  		app.stage.addChild(player);
-  	}
+      textures.push(smallTexture);
+    }
   }
+
+  let defaultTexture = textures[2];
+
+  let player = new PIXI.Sprite(defaultTexture);
+
+  player.position.set(64,64);
+  app.stage.addChild(player);
 
   app.renderer.render();
 
