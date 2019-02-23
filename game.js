@@ -1,3 +1,4 @@
+
 let type = "WebGL"
 
 if(!PIXI.utils.isWebGLSupported()){
@@ -20,7 +21,7 @@ if(!PIXI.utils.isWebGLSupported()){
 
 //Create a Pixi Application
 let app = new PIXI.Application({ 
-    width: 900,         // default: 800
+    width: 1200,         // default: 800
     height: 800,        // default: 600
     antialias: true,    // default: false
     transparent: false, // default: false
@@ -40,34 +41,44 @@ PIXI.loader
   .add([tree])
   .load(setup);
 
+app.renderer.backgroundColor = 0xfcfcf9;
+
 
 //This `setup` function will run when the image has loaded
 function setup() {
-	//Create the `tileset` sprite from the texture
-  let texture = PIXI.utils.TextureCache[mainCharacter];
-  let texture2 = PIXI.utils.TextureCache[tree];
+    //Create the `tileset` sprite from the texture
+    // let texture = PIXI.utils.TextureCache[mainCharacter];
+    let texture = PIXI.BaseTexture.fromImage(mainCharacter);
+    let texture2 = PIXI.utils.TextureCache[tree];
 
-  // // Create the cat sprite
-  // let player = new PIXI.Sprite(PIXI.loader.resources[mainCharacter].texture);
+    //Create a rectangle object that defines the position and
+    //size of the sub-image you want to extract from the texture
+    //(`Rectangle` is an alias for `PIXI.Rectangle`)
 
-  //Create a rectangle object that defines the position and
-  //size of the sub-image you want to extract from the texture
-  //(`Rectangle` is an alias for `PIXI.Rectangle`)
-  for (var i=0;i<3;i++) {
-  	for (var j=0;j<2;j++) {
-  		let rectangle = new PIXI.Rectangle(i*128,j*128,128,128);
-  		texture.frame = rectangle;
+    // Array of textures for player
+    let textures = [];
 
-  		let player = new PIXI.Sprite(texture);
+    for (var i=0;i<3;i++) {
+        for (var j=0;j<2;j++) {
+            let rectangle = new PIXI.Rectangle(i*128,j*128,128,128);
+            let smallTexture = new PIXI.Texture(texture, rectangle);
+            textures.push(smallTexture); // Append texture to the array of textures
+        }
+    }
 
-  		player.position.set(64,64);
-  		app.stage.addChild(player);
-  	}
-  }
-  let treeSprite = new PIXI.Sprite(texture2);
-  treeSprite.position.set(600,500);
-  app.stage.addChild(treeSprite);
+    let defaultTexture = textures[2];
 
-  app.renderer.render();
+    let player = new PIXI.Sprite(defaultTexture);
+
+    player.position.set(app.renderer.width/2, app.renderer.height/2);
+    app.stage.addChild(player);
+
+    // set tree position
+    let treeSprite = new PIXI.Sprite(texture2);
+    treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (Math.random() * (app.renderer.height - 1) + 1));
+    app.stage.addChild(treeSprite);
+
+
+    app.renderer.render();
 
 }
