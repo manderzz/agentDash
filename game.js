@@ -29,6 +29,7 @@ let app = new PIXI.Application({
 );
 
 const mainCharacter = "images/skier.png";
+const tree = "images/tree_a.png";
 
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
@@ -36,13 +37,15 @@ document.body.appendChild(app.view);
 //load an image and run the `setup` function when it's done
 PIXI.loader
   .add([mainCharacter])
+  .add([tree])
   .load(setup);
 
 
 //This `setup` function will run when the image has loaded
 function setup() {
 	//Create the `tileset` sprite from the texture
-	let texture = PIXI.utils.TextureCache[mainCharacter];
+  let texture = PIXI.utils.TextureCache[mainCharacter];
+  let texture2 = PIXI.utils.TextureCache[tree];
 
   // // Create the cat sprite
   // let player = new PIXI.Sprite(PIXI.loader.resources[mainCharacter].texture);
@@ -61,6 +64,9 @@ function setup() {
   		app.stage.addChild(player);
   	}
   }
+  let treeSprite = new PIXI.Sprite(texture2);
+  treeSprite.position.set(600,500);
+  app.stage.addChild(treeSprite);
 
   app.renderer.render();
 
