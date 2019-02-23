@@ -20,38 +20,48 @@ if(!PIXI.utils.isWebGLSupported()){
 
 //Create a Pixi Application
 let app = new PIXI.Application({ 
-    width: 800,         // default: 800
-    height: 600,        // default: 600
+    width: 900,         // default: 800
+    height: 800,        // default: 600
     antialias: true,    // default: false
     transparent: false, // default: false
     resolution: 1       // default: 1
     }
 );
 
-const mainCharacter = "images/mainCharacter.jpg";
+const mainCharacter = "images/skier.png";
 
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
 
 //load an image and run the `setup` function when it's done
 PIXI.loader
-  .add([
-    mainCharacter
-  ])
+  .add([mainCharacter])
   .load(setup);
-
-
 
 
 //This `setup` function will run when the image has loaded
 function setup() {
+	//Create the `tileset` sprite from the texture
+	let texture = PIXI.utils.TextureCache[mainCharacter];
 
-  // Create the cat sprite
-  let player = new PIXI.Sprite(PIXI.loader.resources[mainCharacter].texture);
+  // // Create the cat sprite
+  // let player = new PIXI.Sprite(PIXI.loader.resources[mainCharacter].texture);
 
-  // Initial Position
-  player.position.set(400, 400);
-  
-  //Add the cat to the stage
-  app.stage.addChild(player);
+  //Create a rectangle object that defines the position and
+  //size of the sub-image you want to extract from the texture
+  //(`Rectangle` is an alias for `PIXI.Rectangle`)
+  for (var i=0;i<3;i++) {
+  	for (var j=0;j<2;j++) {
+  		let rectangle = new PIXI.Rectangle(i*128,j*128,128,128);
+  		texture.frame = rectangle;
+
+  		let player = new PIXI.Sprite(texture);
+
+  		player.position.set(64,64);
+  		app.stage.addChild(player);
+  	}
+  }
+
+  app.renderer.render();
+
 }
