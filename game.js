@@ -245,9 +245,9 @@ function setup() {
     };
     //Down
     down.press = () => {
-        treeSpeedDueToDownKey = -1;
-        snowmanSpeedDueToDownKey = -1;
-        flagSpeedDuetoDownKey = -1;
+        treeSpeedDueToDownKey = -5;
+        snowmanSpeedDueToDownKey = -5;
+        flagSpeedDuetoDownKey = -5;
     };
     down.release = () => {
         if (!up.isDown && player.vx === 0) {
@@ -304,7 +304,7 @@ function setup() {
 
             flagSpeed = -5;
             flagSpeedIncrease = -1;
-            flagSpawnRate = 80;
+            flagSpawnRate = 160;
 
             player.texture = textures[mappings["default"]];
     };
