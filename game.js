@@ -47,10 +47,30 @@ let flagTextures = [];
 
 let flagSprites = [];
 
+// speed of snowman and tree are the same
+let treeSpeed = -5;
+let treeSpeedIncrease = -1;
+let treeSpawnRate = 100;
+
+let snowmanSpeed = -5;
+let snowmanSpeedIncrease = -1;
+let snowmanSpawnRate = 120;
+
+let flagSpeed = -5;
+let flagSpeedIncrease = -1;
+let flagSpawnRate = 80;
+
+let cloudHorizontalSpeed = 5;
+let cloudVerticalSpeed = 0;
+let cloudVerticalSpeedIncrease = -1;
+let cloudSpawnRate = 120;
+
 let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
 let snowmanSpeedDueToDownKey = 0;
 let flagSpeedDuetoDownKey = 0;
+
+let pause = false;
 
 var score = 0;
 
@@ -176,17 +196,21 @@ function setup() {
 	gameOverScene.addChild(restart);
 
       //Capture the keyboard arrow keys
-    let left = keyboard(37),
-         up = keyboard(38),
-         right = keyboard(39),
+    let left = keyboard(37);
+         up = keyboard(38);
+         right = keyboard(39);
          down = keyboard(40);
+         space = keyboard(32);
+         enter = keyboard(13);
 
     //Left arrow key `press` method
     left.press = () => {
         //Change the cat's velocity when the key is pressed
+        if(pause == false) {
         player.vx = -5;
         player.vy = 0;
         player.texture = textures[mappings["left"]];
+      }
     };
     
     //Left arrow key `release` method
@@ -211,9 +235,12 @@ function setup() {
 
     //Right
     right.press = () => {
+      if(pause == false) {
         player.vx = 5;
         player.vy = 0;
         player.texture = textures[mappings["right"]];
+      }
+        
     };
     right.release = () => {
         if (!left.isDown && player.vy === 0) {
@@ -223,9 +250,12 @@ function setup() {
     };
     //Down
     down.press = () => {
+      if(pause == false) {
         treeSpeedDueToDownKey = -1;
         snowmanSpeedDueToDownKey = -1;
         flagSpeedDuetoDownKey = -1;
+      }
+        
     };
     down.release = () => {
         if (!up.isDown && player.vx === 0) {
@@ -234,6 +264,49 @@ function setup() {
             flagSpeedDuetoDownKey = 0;
         }
     };
+    //Pause
+    space.press = () => {
+      treeSpeed = 0;
+      treeSpeedIncrease = 0;
+      treeSpawnRate = 0;
+      treeSpeedDueToDownKey = 0;
+      snowmanSpeed = 0;
+      snowmanSpeedIncrease = 0;
+      snowmanSpawnRate = 0;
+      snowmanSpeedDueToDownKey = 0;
+      flagSpeed = 0;
+      flagSpeedIncrease = 0;
+      flagSpawnRate = 0;
+      flagSpeedDuetoDownKey = 0;
+      cloudHorizontalSpeed = 0;
+      cloudVerticalSpeed = 0;
+      cloudVerticalSpeedIncrease = 0;
+      cloudSpawnRate = 0;
+      player.vx = 0;
+      player.vy = 0;
+      pause = true;
+    }
+
+    enter.press = () => {
+      treeSpeed = -5;
+      treeSpeedIncrease = -1;
+      treeSpawnRate = 100;
+
+      snowmanSpeed = -5;
+      snowmanSpeedIncrease = -1;
+      snowmanSpawnRate = 120;
+
+      flagSpeed = -5;
+      flagSpeedIncrease = -1;
+      flagSpawnRate = 80;
+
+      cloudHorizontalSpeed = 5;
+      cloudVerticalSpeed = 0;
+      cloudVerticalSpeedIncrease = -1;
+      cloudSpawnRate = 120;
+
+      pause = false;
+    }
 
     // Set the game state to play
     state = play;
@@ -284,24 +357,6 @@ function gameLoop(delta) {
     scoreDisplay.text = "Score: " + score;
     state(delta)
 }
-
-// speed of snowman and tree are the same
-let treeSpeed = -5;
-let treeSpeedIncrease = -1;
-let treeSpawnRate = 100;
-
-let snowmanSpeed = -5;
-let snowmanSpeedIncrease = -1;
-let snowmanSpawnRate = 120;
-
-let flagSpeed = -5;
-let flagSpeedIncrease = -1;
-let flagSpawnRate = 80;
-
-let cloudHorizontalSpeed = 5;
-let cloudVerticalSpeed = 0;
-let cloudVerticalSpeedIncrease = -1;
-let cloudSpawnRate = 120;
 
 function play(delta) {
     // Update player position
