@@ -32,6 +32,7 @@ let app = new PIXI.Application({
 // Texture files to be loaded as sprites
 const mainCharacter = "images/skier.png";
 const tree = "images/tree_a.png";
+const snowman = "images/snowman.png";
 
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
@@ -40,6 +41,7 @@ document.body.appendChild(app.view);
 PIXI.loader
   .add([mainCharacter])
   .add([tree])
+  .add([snowman])
   .load(setup);
 
 app.renderer.backgroundColor = 0xfcfcf9;
@@ -48,9 +50,12 @@ app.renderer.backgroundColor = 0xfcfcf9;
 let player, state, gameScene, gameOverScene, message;
 let treeTexture;
 let treeSprites = [];
+let snowmanTexture;
+let snowmanSprites = [];
 
 let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
+let snowmanSpeedDueToDownKey = 0;
 
 //This `setup` function will run when the image has loaded
 function setup() {
@@ -62,6 +67,7 @@ function setup() {
     // let texture = PIXI.utils.TextureCache[mainCharacter];
     let texture = PIXI.BaseTexture.fromImage(mainCharacter);
     treeTexture = PIXI.utils.TextureCache[tree];
+    snowmanTexture = PIXI.utils.TextureCache[snowman];
 
     //Create a rectangle object that defines the position and
     //size of the sub-image you want to extract from the texture
@@ -228,6 +234,10 @@ let treeSpeed = -2;
 let treeSpeedIncrease = -1;
 let treeSpawnRate = 100;
 
+let snowmanSpeed = -2;
+let snowmanSpeedIncrease = -1;
+let snowmanSpawnRate = 100;
+
 function play(delta) {
     // Update player position
     // player.y += player.vy;
@@ -238,8 +248,16 @@ function play(delta) {
         treeSprite.y += treeSpeed + treeSpeedDueToDownKey;
     })
 
+    snowmanSprites.forEach((snowmanSprite) => {
+        snowmanSprite.y += snowmanSpeed + snowmanSpeedDueToDownKey;
+    })
+
     if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
         spawnTree();
+    }
+
+    if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
+        spawnSnowman();
     }
 
     // Increase speed of trees as game progresses
@@ -250,12 +268,29 @@ function play(delta) {
         }
     }
 
+    if (Math.round(totalElapsedTime) % 1000 == 0) {
+        snowmanSpeed += snowmanSpeedIncrease;
+        if (snowmanSpawnRate > 20) {
+            snowmanSpawnRate -= 10;
+        }
+    }
+
     // Check for collision
     treeSprites.forEach((treeSprite) => {
         if (hitTestRectangle(player, treeSprite)) {
             //There's a collision
             // message.text = "hit!";
             treeSprite.tint = 0xff3300;
+            state = end;
+          } 
+    })
+
+
+    snowmanSprites.forEach((snowmanSprite) => {
+        if (hitTestRectangle(player, snowmanSprite)) {
+            //There's a collision
+            // message.text = "hit!";
+            snowmanSprite.tint = 0xff3300;
             state = end;
           } 
     })
@@ -319,6 +354,15 @@ function spawnTree() {
     treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (app.renderer.height - 200));
     gameScene.addChild(treeSprite);
     treeSprites.push(treeSprite);
+}
+
+
+function spawnSnowman() {
+    // set tree position
+    let snowmanSprite = new PIXI.Sprite(snowmanTexture);
+    snowmanSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (app.renderer.height - 200));
+    gameScene.addChild(snowmanSprite);
+    snowmanSprites.push(snowmanSprite);
 }
 
 
