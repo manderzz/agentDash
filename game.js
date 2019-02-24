@@ -86,10 +86,99 @@ function setup() {
     // treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (Math.random() * (app.renderer.height - 1) + 1));
     app.stage.addChild(treeSprite);
 
+      //Capture the keyboard arrow keys
+    let left = keyboard(37),
+         up = keyboard(38),
+         right = keyboard(39),
+         down = keyboard(40);
+
+    //Left arrow key `press` method
+  left.press = () => {
+    //Change the cat's velocity when the key is pressed
+    player.vx = -5;
+    player.vy = 0;
+  };
+  
+  //Left arrow key `release` method
+  left.release = () => {
+    //If the left arrow has been released, and the right arrow isn't down,
+    //and the cat isn't moving vertically:
+    //Stop the cat
+    if (!right.isDown && player.vy === 0) {
+      player.vx = 0;
+    }
+  };
+  //Up
+  up.press = () => {
+    player.vy = -5;
+    player.vx = 0;
+  };
+  up.release = () => {
+    if (!down.isDown && player.vx === 0) {
+      player.vy = 0;
+    }
+  };
+  //Right
+  right.press = () => {
+    player.vx = 5;
+    player.vy = 0;
+  };
+  right.release = () => {
+    if (!left.isDown && player.vy === 0) {
+      player.vx = 0;
+    }
+  };
+  //Down
+  down.press = () => {
+    player.vy = 5;
+    player.vx = 0;
+  };
+  down.release = () => {
+    if (!up.isDown && player.vx === 0) {
+      player.vy = 0;
+    }
+  };
+
     // Set the game state to play
     state = play;
 
     app.ticker.add(delta => gameLoop(delta));
+    
+}
+//The `keyboard` helper function
+function keyboard(keyCode) {
+  var key = {};
+  key.code = keyCode;
+  key.isDown = false;
+  key.isUp = true;
+  key.press = undefined;
+  key.release = undefined;
+  //The `downHandler`
+  key.downHandler = event => {
+    if (event.keyCode === key.code) {
+      if (key.isUp && key.press) key.press();
+      key.isDown = true;
+      key.isUp = false;
+    }
+    event.preventDefault();
+  };
+  //The `upHandler`
+  key.upHandler = event => {
+    if (event.keyCode === key.code) {
+      if (key.isDown && key.release) key.release();
+      key.isDown = false;
+      key.isUp = true;
+    }
+    event.preventDefault();
+  };
+  //Attach event listeners
+  window.addEventListener(
+    "keydown", key.downHandler.bind(key), false
+  );
+  window.addEventListener(
+    "keyup", key.upHandler.bind(key), false
+  );
+  return key;
 }
 
 
@@ -100,7 +189,7 @@ function gameLoop(delta) {
   
 function play(delta) {
     //All the game logic goes here
-    player.vx = 1;
+    player.y += player.vy;
     player.x += player.vx;
 
     if (hitTestRectangle(player, treeSprite)) {
@@ -166,6 +255,7 @@ function hitTestRectangle(r1, r2) {
   //`hit` will be either `true` or `false`
   return hit;
 };
+
 
 function end() {
     //All the code that should run at the end of the game
