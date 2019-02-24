@@ -19,6 +19,7 @@ let app = new PIXI.Application({
 const mainCharacter = "images/skier.png";
 const tree = "images/tree_a.png";
 const snowman = "images/snowman.png";
+const cloud = "images/clouds_opaque.png";
 
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
@@ -28,6 +29,7 @@ PIXI.loader
   .add([mainCharacter])
   .add([tree])
   .add([snowman])
+  .add([cloud])
   .load(setup);
 
 app.renderer.backgroundColor = 0xfcfcf9;
@@ -38,6 +40,8 @@ let treeTexture;
 let treeSprites = [];
 let snowmanTexture;
 let snowmanSprites = [];
+let cloudTextures = [];
+let cloudSprites = []
 
 let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
@@ -63,12 +67,23 @@ function setup() {
     treeTexture = PIXI.utils.TextureCache[tree];
     snowmanTexture = PIXI.utils.TextureCache[snowman];
 
+    // =============================================
+    // Creating cloud sprites
+    let cloudTexture = PIXI.utils.TextureCache[cloud];
+    let cloudRectangle = new PIXI.Rectangle(0,0,550,275);
+    let subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
+    cloudTextures.push(subCloudTexture);
+
+    cloudRectangle = new PIXI.Rectangle(210,275,340,275);
+    subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
+    cloudTextures.push(subCloudTexture);
+    // =============================================
 
     // Array of textures for player
     let textures = [];
 
-    for (var i=0;i<3;i++) {
-        for (var j=0;j<2;j++) {
+    for (var i=0; i<3; i++) {
+        for (var j=0; j<2; j++) {
             let rectangle = new PIXI.Rectangle(i*128,j*128,128,128);
             let smallTexture = new PIXI.Texture(texture, rectangle);
             textures.push(smallTexture); // Append texture to the array of textures
