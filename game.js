@@ -514,7 +514,7 @@ function play(delta) {
     // Update player position
     //player.x += player.vx;
 
-    if (player.x <= 0) {
+    if (player.x <= 0 + player.width) {
     	if (player.vx < 0) {
     		player.x += 0
     	} else {
