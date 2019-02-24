@@ -56,31 +56,29 @@ let blueFlagSprite;
 let blueFlagSprites = [];
 
 // speed of snowman and tree are the same
-let treeSpeed = -5;
-let treeSpeedIncrease = -1;
 let treeSpawnRate = 100;
 
-let snowmanSpeed = -5;
-let snowmanSpeedIncrease = -1;
 let snowmanSpawnRate = 120;
 
-let redFlagSpeed = -5;
-let redFlagSpeedIncrease = -1;
-let redFlagSpawnRate = 100;
 
-let blueFlagSpeed = -5;
-let blueFlagSpeedIncrease = -1;
+// let flagSpawnRate = 150;
+
+let redFlagSpawnRate = 100;
 let blueFlagSpawnRate = 120;
+
 
 let cloudHorizontalSpeed = 5;
 let cloudVerticalSpeed = 0;
-let cloudVerticalSpeedIncrease = -1;
 let cloudSpawnRate = 120;
 
+let baseSpeed = -5;
+let speedIncrease = -1;
+let downAcceleration = 0;
+
 let totalElapsedTime = 0.0;
-let treeSpeedDueToDownKey = 0;
-let snowmanSpeedDueToDownKey = 0;
-let flagSpeedDuetoDownKey = 0;
+// let treeSpeedDueToDownKey = 0;
+// let snowmanSpeedDueToDownKey = 0;
+// let flagSpeedDuetoDownKey = 0;
 
 let pause = false;
 
@@ -177,44 +175,45 @@ function setup() {
         redFlagTextures.push(smallTexture);
     }
 
+    // ================================
+    // Initialize the start game scene
+    startGameScene = new PIXI.Container();
+    app.stage.addChild(startGameScene);
+    startGameScene.visible = true;
 
-        // Initialize the start game scene
-        startGameScene = new PIXI.Container();
-        app.stage.addChild(startGameScene);
-        startGameScene.visible = true;
+    let gameStart_style = new PIXI.TextStyle({
+        fontFamily: "Futura",
+        fontSize: 64,
+        fill: "black",
+        stroke: '#ff3300',
+        strokeThickness: 4,
+        dropShadow: true,
+        dropShadowColor: "#000000",
+        dropShadowBlur: 4,
+        dropShadowAngle: Math.PI / 6,
+        dropShadowDistance: 6
+    });
     
-        let gameStart_style = new PIXI.TextStyle({
-          fontFamily: "Futura",
-          fontSize: 64,
-          fill: "black",
-          stroke: '#ff3300',
-          strokeThickness: 4,
-          dropShadow: true,
-          dropShadowColor: "#000000",
-          dropShadowBlur: 4,
-          dropShadowAngle: Math.PI / 6,
-          dropShadowDistance: 6
-        });
-    
-        startMessage = new PIXI.Text("Agent Dash", gameStart_style);
-        startMessage.anchor.set(0.5);
-        startMessage.x = 600;
-        startMessage.y = app.stage.height + 50;
-        startGameScene.addChild(startMessage);
-    
-        const start = new PIXI.Text("Start Game");
-        start.anchor.set(0.5);
-        start.position.set(600,app.stage.height+200);
-        start.buttonMode = true;
-      start.interactive = true;
-      start.on('click', (event) => {
+    startMessage = new PIXI.Text("Agent Dash", gameStart_style);
+    startMessage.anchor.set(0.5);
+    startMessage.x = 600;
+    startMessage.y = app.stage.height + 50;
+    startGameScene.addChild(startMessage);
+
+    const start = new PIXI.Text("Start Game");
+    start.anchor.set(0.5);
+    start.position.set(600,app.stage.height+200);
+    start.buttonMode = true;
+    start.interactive = true;
+    start.on('click', (event) => {
         console.log("start game");
-           startGameScene.visible = false;
-           state = play;
-           app.ticker.add(delta => gameLoop(delta));
-           app.ticker.start();
-      });
-      startGameScene.addChild(start);
+        startGameScene.visible = false;
+        scoreDisplay.visible = true;
+        state = play;
+        app.ticker.add(delta => gameLoop(delta));
+        app.ticker.start();
+    });
+    startGameScene.addChild(start);
     
     
     
@@ -236,8 +235,8 @@ function setup() {
     //flag.position.set(500,500);
     //gameScene.addChild(flag);
 
-
-    //score display stuff
+    // =========================================================
+    // score display stuff
     let scoreDisplay_style = new PIXI.TextStyle({
     	fontFamily: "Futura",
     	fontSize: 18,
@@ -245,13 +244,14 @@ function setup() {
     })
 
     scoreDisplay = new PIXI.Text("Score: " + Math.round(score), scoreDisplay_style);
+    scoreDisplay.visible = false;
 
     app.stage.addChild(scoreDisplay);
     // if (state === end) {
     // 	scoreDisplay.position.set(600,app.stage.height+200);
     // }
 
-    // Initialize the game over scene
+    // Initialize the Game Over scene
     gameOverScene = new PIXI.Container();
     app.stage.addChild(gameOverScene);
     gameOverScene.visible = false;
@@ -262,6 +262,7 @@ function setup() {
         fill: "red"
     });
 
+    // "The End"
     message = new PIXI.Text("The End!", gameOver_style);
     message.anchor.set(0.5);
     message.x = 600;
@@ -336,35 +337,38 @@ function setup() {
     //Down
     down.press = () => {
       if(pause == false) {
-        treeSpeedDueToDownKey = -5;
-        snowmanSpeedDueToDownKey = -5;
-        flagSpeedDuetoDownKey = -5;
+        downAcceleration = -5;
       }
     };
     down.release = () => {
         if (!up.isDown) {
-            treeSpeedDueToDownKey = 0;
-            snowmanSpeedDueToDownKey = 0;
-            flagSpeedDuetoDownKey = 0;
+            downAcceleration = 0;
         }
     };
     //Pause
     space.press = () => {
-      treeSpeed = 0;
-      treeSpeedIncrease = 0;
+      baseSpeed = 0;
+      speedIncrease = 0;
+
+    //   treeSpeed = 0;
+    //   treeSpeedIncrease = 0;
       treeSpawnRate = 0;
-      treeSpeedDueToDownKey = 0;
-      snowmanSpeed = 0;
-      snowmanSpeedIncrease = 0;
+      downAcceleration = 0;
+    //   snowmanSpeed = 0;
+    //   snowmanSpeedIncrease = 0;
       snowmanSpawnRate = 0;
-      snowmanSpeedDueToDownKey = 0;
-      redFlagSpeed = 0;
+
+    //   flagSpeed = 0;
+    //   flagSpeedIncrease = 0;
+      flagSpawnRate = 0;
+
+    //   redFlagSpeed = 0;
       redFlagSpeedIncrease = 0;
       redFlagSpawnRate = 0;
-      blueFlagSpeed = 0;
+    //   blueFlagSpeed = 0;
       blueFlagSpeedIncrease = 0;
       blueFlagSpawnRate = 0;
-      flagSpeedDuetoDownKey = 0;
+
       cloudHorizontalSpeed = 0;
       cloudVerticalSpeed = 0;
       cloudVerticalSpeedIncrease = 0;
@@ -375,20 +379,18 @@ function setup() {
     }
 
     enter.press = () => {
-      treeSpeed = -5;
-      treeSpeedIncrease = -1;
+      baseSpeed = -5;
+      speedIncrease = -1;
+    //   treeSpeedIncrease = -1;
       treeSpawnRate = 100;
 
-      snowmanSpeed = -5;
-      snowmanSpeedIncrease = -1;
+    //   snowmanSpeedIncrease = -1;
       snowmanSpawnRate = 120;
 
-      redFlagSpeed = -5;
-      redFlagSpeedIncrease = -1;
+    //   redFlagSpeedIncrease = -1;
       redFlagSpawnRate = 90;
 
-      blueFlagSpeed = -5;
-      blueFlagSpeedIncrease = -1;
+    //   blueFlagSpeedIncrease = -1;
       blueFlagSpawnRate = 70;
 
       cloudHorizontalSpeed = 5;
@@ -401,63 +403,67 @@ function setup() {
 
     pause.press = () => {
         
-            player.vx = 0;
-            treeSpeedDueToDownKey = 0;
-            snowmanSpeedDueToDownKey = 0;
+        player.vx = 0;
+        downAcceleration = 0;
 
-            treeSpeed = 0;
-            treeSpeedIncrease = 0;
-            treeSpawnRate = 0;
+        baseSpeed = 0;
+        speedIncrease = 0;
+        // treeSpeed = 0;
+        // treeSpeedIncrease = 0;
+        treeSpawnRate = 0;
 
-            snowmanSpeed = 0;
-            snowmanSpeedIncrease = 0;
-            snowmanSpawnRate = 0;
+        // snowmanSpeed = 0;
+        // snowmanSpeedIncrease = 0;
+        snowmanSpawnRate = 0;
 
-            cloudHorizontalSpeed = 0;
-            cloudVerticalSpeed = 0;
-            cloudVerticalSpeedIncrease = 0;
-            cloudSpawnRate = 0;
+        cloudHorizontalSpeed = 0;
+        cloudVerticalSpeed = 0;
+        cloudVerticalSpeedIncrease = 0;
+        cloudSpawnRate = 0;
 
-            redFlagSpeed = 0;
-            redFlagSpeedIncrease = 0;
-            redFlagSpawnRate = 0;
+        // redFlagSpeed = 0;
+        // redFlagSpeedIncrease = 0;
+        redFlagSpawnRate = 0;
 
-            blueFlagSpeed = 0;
-            blueFlagSpeedIncrease = 0;
-            blueFlagSpawnRate = 0;
+        // blueFlagSpeed = 0;
+        // blueFlagSpeedIncrease = 0;
+        blueFlagSpawnRate = 0;
 
-            player.texture = textures[mappings["default"]];
+        player.texture = textures[mappings["default"]];
         
     };
 
 
     enter.press = () => {
 
-            player.vx = 0;
-            player.vy = 0;
+        player.vx = 0;
+        player.vy = 0;
 
-            treeSpeed = -5;
-            treeSpeedIncrease = -5;
-            treeSpawnRate = 100;
+        baseSpeed = -5;
+        speedIncrease = -1;
 
-            snowmanSpeed = -5;
-            snowmanSpeedIncrease = -5;
-            snowmanSpawnRate = 120;
+        // treeSpeed = -5;
+        // treeSpeedIncrease = -5;
+        treeSpawnRate = 100;
 
-            cloudHorizontalSpeed = 5;
-            cloudVerticalSpeed = 0;
-            cloudVerticalSpeedIncrease = -1;
-            cloudSpawnRate = 120;
+        // snowmanSpeed = -5;
+        // snowmanSpeedIncrease = -5;
+        snowmanSpawnRate = 120;
 
-            redFlagSpeed = -5;
-            redFlagSpeedIncrease = -5;
-            redFlagSpawnRate = 90;
+        cloudHorizontalSpeed = 5;
+        cloudVerticalSpeed = 0;
+        cloudVerticalSpeedIncrease = -1;
+        cloudSpawnRate = 120;
 
-            blueFlagSpeed = -5;
-            blueFlagSpeedIncrease = -5;
-            blueFlagSpawnRate = 70;
+        // redFlagSpeed = -5;
+        // redFlagSpeedIncrease = -5;
+        redFlagSpawnRate = 90;
 
-            pause = false;
+        // blueFlagSpeed = -5;
+        // blueFlagSpeedIncrease = -5;
+        blueFlagSpawnRate = 70;
+
+        pause = false;
     };
 
     // Set the game state to play
@@ -466,6 +472,7 @@ function setup() {
     // app.ticker.add(delta => gameLoop(delta));
     // app.ticker.start();
 }
+
 //The `keyboard` helper function
 function keyboard(keyCode) {
     var key = {};
@@ -506,13 +513,13 @@ function keyboard(keyCode) {
 function gameLoop(delta) {
     //Runs the current game `state` in a loop and renders the sprites
     totalElapsedTime += delta;
+    // totalElapsedTime += app.ticker.elapsedMS/1000;
     scoreDisplay.text = "Score: " + Math.round(score);
     state(delta)
 }
 
 function play(delta) {
     // Update player position
-    //player.x += player.vx;
 
     if (player.x <= 0 + player.width) {
     	if (player.vx < 0) {
@@ -530,84 +537,82 @@ function play(delta) {
     }
     else {
     	player.x += player.vx
-    }    // if (player.x >= 1190) {
-    // 	player.x = 1;
-    // } else if (player.x <= 0) {
-    // 	player.x = 1;
-    // } else {
-    // 	player.x += player.vx;
-    // }
-
-
+    }
 
     // Move trees upward
     treeSprites.forEach((treeSprite) => {
-        treeSprite.y += treeSpeed + treeSpeedDueToDownKey;
+        treeSprite.y += baseSpeed + downAcceleration;
     })
 
     snowmanSprites.forEach((snowmanSprite) => {
-        snowmanSprite.y += snowmanSpeed + snowmanSpeedDueToDownKey;
+        snowmanSprite.y += baseSpeed + downAcceleration;
     })
 
+    // flagSprites.forEach((flagSprite) => {
+    //   flagSprite.y += flagSpeed + downAcceleration;
     redFlagSprites.forEach((redFlagSprite) => {
-      redFlagSprite.y += redFlagSpeed + flagSpeedDuetoDownKey;
+      redFlagSprite.y += baseSpeed + downAcceleration;
     })
     blueFlagSprites.forEach((blueFlagSprite) => {
-      blueFlagSprite.y += blueFlagSpeed + flagSpeedDuetoDownKey;
+      blueFlagSprite.y += baseSpeed + downAcceleration;
     })
+
     cloudSprites.forEach((cloudSprite) => {
         cloudSprite.x += cloudHorizontalSpeed;
-        cloudSprite.y += cloudVerticalSpeed + treeSpeedDueToDownKey;
+        cloudSprite.y += cloudVerticalSpeed + downAcceleration;
     })
 
     if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
         spawnTree();
     }
-    else if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
+    if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
         spawnSnowman();
     } 
     if (Math.round(totalElapsedTime) % cloudSpawnRate == 0) {
     	spawnCloud();
     }
-    else if (Math.round(totalElapsedTime) % redFlagSpawnRate == 0) {
+    
+    if (Math.round(totalElapsedTime) % redFlagSpawnRate == 0) {
       spawnRedFlag();
   	}
   	if (Math.round(totalElapsedTime) % blueFlagSpawnRate == 0) {
       spawnBlueFlag();
   	}
   
+    // ======================================================
+    console.log(totalElapsedTime);
     // Increase speed of trees as game progresses
     if (Math.round(totalElapsedTime) % 1000 == 0) {
-        treeSpeed += treeSpeedIncrease;
+        baseSpeed += speedIncrease;
         if (treeSpawnRate > 20) {
             treeSpawnRate -= 10;
         }
-    }
-
-    if (Math.round(totalElapsedTime) % 1000 == 0) {
-        snowmanSpeed += snowmanSpeedIncrease;
         if (snowmanSpawnRate > 20) {
             snowmanSpawnRate -= 10;
         }
+        if (redFlagSpawnRate > 20) {
+            redFlagSpawnRate -= 10;
+        }
+        if (blueFlagSpawnRate > 20) {
+            blueFlagSpawnRate -= 10;
+        }
+        cloudVerticalSpeed += speedIncrease;
     }
 
-    if (Math.round(totalElapsedTime) % 1000 == 0) {
-      redFlagSpeed += redFlagSpeedIncrease;
-      blueFlagSpeed += blueFlagSpeedIncrease;
-      if (redFlagSpawnRate > 20) {
-          redFlagSpawnRate -= 10;
-      }
-      if (blueFlagSpawnRate > 20) {
-          blueFlagSpawnRate -= 10;
-      }
-      cloudVerticalSpeed += cloudVerticalSpeedIncrease;
-    }
+    // if (Math.round(totalElapsedTime) % 1000 == 0) {
+    //     // snowmanSpeed += speedIncrease;
+
+    // }
+
+    // if (Math.round(totalElapsedTime) % 1000 == 0) {
+    // //   redFlagSpeed += speedIncrease;
+    // //   blueFlagSpeed += speedIncrease;
+
+    // }
 
     // Check for collision
     treeSprites.forEach((treeSprite) => {
         if (hitTestRectangle(player, treeSprite)) {
-            //There's a collision
-            // message.text = "hit!";
             treeSprite.tint = 0xff3300;
             state = end;
           } 
@@ -615,8 +620,6 @@ function play(delta) {
 
     snowmanSprites.forEach((snowmanSprite) => {
         if (hitTestRectangle(player, snowmanSprite)) {
-            //There's a collision
-            // message.text = "hit!";
             snowmanSprite.tint = 0xff3300;
             state = end;
           } 
@@ -624,8 +627,6 @@ function play(delta) {
 
     redFlagSprites.forEach((redFlagSprite) => {
       if (hitTestRectangle(player, redFlagSprite) && (redFlagSprite.visible)) {
-          //There's a collision
-          // message.text = "hit!";
           redFlagSprite.visible = false;
           score = score + 50;
         } 
@@ -633,8 +634,6 @@ function play(delta) {
 
   	blueFlagSprites.forEach((blueFlagSprite) => {
       if (hitTestRectangle(player, blueFlagSprite) && (blueFlagSprite.visible)) {
-          //There's a collision
-          // message.text = "hit!";
           blueFlagSprite.visible = false;
           score = score + 100;
         } 
