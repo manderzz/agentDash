@@ -43,7 +43,7 @@ PIXI.loader
 
 app.renderer.backgroundColor = 0xfcfcf9;
 
-let player, state;
+let player, state, treeSprite;
 
 
 //This `setup` function will run when the image has loaded
@@ -81,8 +81,9 @@ function setup() {
     app.stage.addChild(player);
 
     // set tree position
-    let treeSprite = new PIXI.Sprite(texture2);
-    treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (Math.random() * (app.renderer.height - 1) + 1));
+    treeSprite = new PIXI.Sprite(texture2);
+    treeSprite.position.set(800,400);
+    // treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (Math.random() * (app.renderer.height - 1) + 1));
     app.stage.addChild(treeSprite);
 
     // Set the game state to play
@@ -99,9 +100,72 @@ function gameLoop(delta) {
   
 function play(delta) {
     //All the game logic goes here
-    player.vx = 0.1;
+    player.vx = 1;
     player.x += player.vx;
+
+    if (hitTestRectangle(player, treeSprite)) {
+	  //There's a collision
+		// message.text = "hit!";
+		console.log("collision");
+    	treeSprite.tint = 0xff3300;
+	} else {
+	  //There's no collision
+		// message.text = "No collision...";
+		console.log("shermer");
+    	treeSprite.tint = 0xccff99;
+	}
 }
+
+function hitTestRectangle(r1, r2) {
+
+  //Define the variables we'll need to calculate
+  let hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
+
+  //hit will determine whether there's a collision
+  hit = false;
+
+  //Find the center points of each sprite
+  r1.centerX = r1.x + r1.width / 2;
+  r1.centerY = r1.y + r1.height / 2;
+  r2.centerX = r2.x + r2.width / 2;
+  r2.centerY = r2.y + r2.height / 2;
+
+  //Find the half-widths and half-heights of each sprite
+  r1.halfWidth = r1.width / 2;
+  r1.halfHeight = r1.height / 2;
+  r2.halfWidth = r2.width / 2;
+  r2.halfHeight = r2.height / 2;
+
+  //Calculate the distance vector between the sprites
+  vx = r1.centerX - r2.centerX;
+  vy = r1.centerY - r2.centerY;
+
+  //Figure out the combined half-widths and half-heights
+  combinedHalfWidths = r1.halfWidth + r2.halfWidth;
+  combinedHalfHeights = r1.halfHeight + r2.halfHeight;
+
+  //Check for a collision on the x axis
+  if (Math.abs(vx) < combinedHalfWidths) {
+
+    //A collision might be occurring. Check for a collision on the y axis
+    if (Math.abs(vy) < combinedHalfHeights) {
+
+      //There's definitely a collision happening
+      hit = true;
+    } else {
+
+      //There's no collision on the y axis
+      hit = false;
+    }
+  } else {
+
+    //There's no collision on the x axis
+    hit = false;
+  }
+
+  //`hit` will be either `true` or `false`
+  return hit;
+};
 
 function end() {
     //All the code that should run at the end of the game
