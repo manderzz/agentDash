@@ -247,11 +247,13 @@ function setup() {
     });
 
     message = new PIXI.Text("The End!", gameOver_style);
-    message.x = 500;
+    message.anchor.set(0.5);
+    message.x = 600;
     message.y = app.stage.height;
     gameOverScene.addChild(message);
 
     const restart = new PIXI.Text("Restart");
+    restart.anchor.set(0.5);
     restart.position.set(600,app.stage.height+200);
     restart.buttonMode = true;
 	restart.interactive = true;
@@ -796,8 +798,9 @@ function end() {
     gameScene.visible = false;
     cloudContainer.visible = false;
     gameOverScene.visible = true;
+    scoreDisplay.anchor.set(0.5);
     scoreDisplay.x = 600;
-    scoreDisplay.y = 420;
+    scoreDisplay.y = 400;
     // scoreDisplay.position.set(600,app.stage.height+200)
     // console.log(score);
     //All the code that should run at the end of the game
