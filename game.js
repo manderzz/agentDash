@@ -43,11 +43,17 @@ PIXI.loader
 
 app.renderer.backgroundColor = 0xfcfcf9;
 
-let player, state, treeSprite;
 
+// Global variables
+let player, state, treeSprite, gameScene, gameOverScene, message;
 
 //This `setup` function will run when the image has loaded
 function setup() {
+    // Game Scene and Game Over Scene
+    gameScene = new PIXI.Container();
+    app.stage.addChild(gameScene);
+
+
     //Create the `tileset` sprite from the texture
     // let texture = PIXI.utils.TextureCache[mainCharacter];
     let texture = PIXI.BaseTexture.fromImage(mainCharacter);
@@ -75,16 +81,29 @@ function setup() {
     player.vx = 0;
     player.vy = 0;
 
-    console.log("Setup done")
-
     player.position.set(app.renderer.width/2, app.renderer.height/2);
-    app.stage.addChild(player);
+    gameScene.addChild(player);
 
     // set tree position
     treeSprite = new PIXI.Sprite(texture2);
     treeSprite.position.set(800,400);
     // treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (Math.random() * (app.renderer.height - 1) + 1));
-    app.stage.addChild(treeSprite);
+    gameScene.addChild(treeSprite);
+
+    // Initialize the game over scene
+    gameOverScene = new PIXI.Container();
+    app.stage.addChild(gameOverScene);
+    gameOverScene.visible = false;
+
+    let style = new PIXI.TextStyle({
+        fontFamily: "Futura",
+        fontSize: 64,
+        fill: "red"
+    });
+    message = new PIXI.Text("The End!", style);
+    message.x = 120;
+    message.y = app.stage.height / 2 - 32;
+    gameOverScene.addChild(message);
 
       //Capture the keyboard arrow keys
     let left = keyboard(37),
@@ -196,12 +215,13 @@ function play(delta) {
 	  //There's a collision
 		// message.text = "hit!";
 		console.log("collision");
-    	treeSprite.tint = 0xff3300;
+        treeSprite.tint = 0xff3300;
+        state = end;
 	} else {
 	  //There's no collision
 		// message.text = "No collision...";
 		console.log("shermer");
-    	treeSprite.tint = 0xccff99;
+    	// treeSprite.tint = 0xccff99;
 	}
 }
 
@@ -258,5 +278,9 @@ function hitTestRectangle(r1, r2) {
 
 
 function end() {
+    message.text = "You lose"
+    gameScene.visible = false;
+    gameOverScene.visible = true;
+    // console.log("Game Over");
     //All the code that should run at the end of the game
 }
