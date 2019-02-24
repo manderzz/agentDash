@@ -35,7 +35,7 @@ PIXI.loader
 app.renderer.backgroundColor = 0xfcfcf9;
 
 // Global variables
-let player, state, gameScene, gameOverScene, message, scoreDisplay;
+let player, state, gameScene, gameOverScene, message, scoreDisplay, cloudContainer;
 let treeTexture;
 let treeSprites = [];
 let snowmanTexture;
@@ -60,6 +60,10 @@ function setup() {
     // Game Scene and Game Over Scene
     gameScene = new PIXI.Container();
     app.stage.addChild(gameScene);
+
+    cloudContainer = new PIXI.Container();
+    cloudContainer.zIndex = 1000000;
+    app.stage.addChild(cloudContainer);
 
     //Create the `tileset` sprite from the texture
     // let texture = PIXI.utils.TextureCache[mainCharacter];
@@ -463,15 +467,17 @@ function spawnCloud() {
 	let cloudSprite = new PIXI.Sprite(cloudTextures[Math.floor(Math.random() * 2)]);
 	cloudSprite.width *= 0.4;
 	cloudSprite.height *= 0.4;
+	cloudSprite.alpha = 0.8;
     let ySpawnPosition = Math.random() * (app.renderer.height - 1 - cloudSprite.height) + 1;
     cloudSprite.position.set(-80, ySpawnPosition);
-    gameScene.addChild(cloudSprite);
+    cloudContainer.addChild(cloudSprite);
     cloudSprites.push(cloudSprite);
 }
 
 
 function end() {
     gameScene.visible = false;
+    cloudContainer.visible = false;
     gameOverScene.visible = true;
     scoreDisplay.x = 600;
     scoreDisplay.y = 300;
