@@ -20,6 +20,7 @@ const mainCharacter = "images/skier.png";
 const tree = "images/tree_a.png";
 const snowman = "images/snowman.png";
 const cloud = "images/clouds_opaque.png";
+const flags = "images/flags.png";
 
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
@@ -41,11 +42,15 @@ let treeSprites = [];
 let snowmanTexture;
 let snowmanSprites = [];
 let cloudTextures = [];
-let cloudSprites = []
+let cloudSprites = [];
+let flagTextures = [];
+
+let flagSprites = [];
 
 let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
 let snowmanSpeedDueToDownKey = 0;
+let flagSpeedDuetoDownKey = 0;
 
 
 
@@ -62,12 +67,22 @@ let cloudVerticalSpeed = 0;
 let cloudVerticalSpeedIncrease = -1;
 let cloudSpawnRate = 120;
 
+
+let flagSpeed = -5;
+let flagSpeedIncrease = -1;
+let flagSpawnRate = 80;
+
 var score = 0;
 
 const mappings = {
     "left": 3,
     "right": 1,
     "default": 4
+};
+
+const flagMappings = {
+    "blue":0,
+    "red":1
 };
 
 //This `setup` function will run when the image has loaded
@@ -85,6 +100,9 @@ function setup() {
     let texture = PIXI.BaseTexture.fromImage(mainCharacter);
     treeTexture = PIXI.utils.TextureCache[tree];
     snowmanTexture = PIXI.utils.TextureCache[snowman];
+
+    // ====================================================
+    let flagTexture = PIXI.BaseTexture.fromImage(flags);
 
     // =============================================
     // Creating cloud sprites
@@ -108,6 +126,16 @@ function setup() {
             textures.push(smallTexture); // Append texture to the array of textures
         }
     }
+    // Array of textures for flags
+    // 196x210
+
+    for (var i =0; i<3; i++){
+      for (var j = 0; j<2; j++){
+        let rectangle = new PIXI.Rectangle(i*65.3,j*105, 65.3, 105);
+        let smallTexture = new PIXI.Texture(flagTexture, rectangle);
+        flagTextures.push(smallTexture);
+      }
+    }
 
     player = new PIXI.Sprite(textures[mappings["default"]]);
 
@@ -118,6 +146,13 @@ function setup() {
     // Initial Position of the player
     player.position.set(app.renderer.width/2, app.renderer.height/10);
     gameScene.addChild(player);
+
+    // Placing flag on image
+    //flag = new PIXI.Sprite(flagTextures[flagMappings["red"]]);
+
+    //flag.position.set(500,500);
+    //gameScene.addChild(flag);
+
 
     //score display stuff
     let scoreDisplay_style = new PIXI.TextStyle({
@@ -171,11 +206,7 @@ function setup() {
     //Left arrow key `press` method
     left.press = () => {
         //Change the cat's velocity when the key is pressed
-        if (player.x >= 5) {
-            player.vx = -5;
-        } else {
-            player.vx = 0;
-        }
+        player.vx = -5;
         player.vy = 0;
         player.texture = textures[mappings["left"]];
     };
@@ -183,30 +214,26 @@ function setup() {
     //Left arrow key `release` method
     left.release = () => {
         //If the left arrow has been released, and the right arrow isn't down,
-        //and the cat isn't moving vertically:
-        //Stop the cat
         if (!right.isDown && player.vy === 0) {
             player.vx = 0;
             player.texture = textures[mappings["default"]];
         }
     };
+
     //Up
-    up.press = () => {
-        player.vy = -5;
-        player.vx = 0;
-    };
-    up.release = () => {
-        if (!down.isDown && player.vx === 0) {
-            player.vy = 0;
-        }
-    };
+    // up.press = () => {
+    //     player.vy = -5;
+    //     player.vx = 0;
+    // };
+    // up.release = () => {
+    //     if (!down.isDown && player.vx === 0) {
+    //         player.vy = 0;
+    //     }
+    // };
+
     //Right
     right.press = () => {
-        if (player.x <= 1200 - player.width) {
-            player.vx = 5;
-        } else {
-            player.vx = 0;
-        }
+        player.vx = 5;
         player.vy = 0;
         player.texture = textures[mappings["right"]];
     };
@@ -220,14 +247,13 @@ function setup() {
     down.press = () => {
         treeSpeedDueToDownKey = -1;
         snowmanSpeedDueToDownKey = -1;
+        flagSpeedDuetoDownKey = -1;
     };
     down.release = () => {
         if (!up.isDown && player.vx === 0) {
             treeSpeedDueToDownKey = 0;
-        }
-
-        if (!up.isDown && player.vx === 0) {
             snowmanSpeedDueToDownKey = 0;
+            flagSpeedDuetoDownKey = 0;
         }
     };
 
@@ -250,6 +276,10 @@ function setup() {
             cloudVerticalSpeedIncrease = 0;
             cloudSpawnRate = 0;
 
+            flagSpeed = 0;
+            flagSpeedIncrease = 0;
+            flagSpawnRate = 0;
+
             player.texture = textures[mappings["default"]];
         
     };
@@ -271,6 +301,10 @@ function setup() {
             cloudVerticalSpeed = 0;
             cloudVerticalSpeedIncrease = -1;
             cloudSpawnRate = 120;
+
+            flagSpeed = -5;
+            flagSpeedIncrease = -1;
+            flagSpawnRate = 80;
 
             player.texture = textures[mappings["default"]];
     };
@@ -331,10 +365,40 @@ function gameLoop(delta) {
 // speed of snowman and tree are the same
 
 
+
+
+
+
+
 function play(delta) {
     // Update player position
-    // player.y += player.vy;
-    player.x += player.vx;
+    //player.x += player.vx;
+
+    if (player.x <= 0) {
+    	if (player.vx < 0) {
+    		player.x += 0
+    	} else {
+    		player.x += player.vx
+    	}
+    }
+    else if (player.x >= 1200 - player.width) {
+    	if (player.vx > 0) {
+    		player.x += 0
+    	} else {
+    		player.x += player.vx
+    	}
+    }
+    else {
+    	player.x += player.vx
+    }    // if (player.x >= 1190) {
+    // 	player.x = 1;
+    // } else if (player.x <= 0) {
+    // 	player.x = 1;
+    // } else {
+    // 	player.x += player.vx;
+    // }
+
+
 
     // Move trees upward
     treeSprites.forEach((treeSprite) => {
@@ -345,6 +409,9 @@ function play(delta) {
         snowmanSprite.y += snowmanSpeed + snowmanSpeedDueToDownKey;
     })
 
+    flagSprites.forEach((flagSprite) => {
+      flagSprite.y += flagSpeed + flagSpeedDuetoDownKey;
+    })
     cloudSprites.forEach((cloudSprite) => {
         cloudSprite.x += cloudHorizontalSpeed;
         cloudSprite.y += cloudVerticalSpeed + treeSpeedDueToDownKey;
@@ -359,6 +426,9 @@ function play(delta) {
     if (Math.round(totalElapsedTime) % cloudSpawnRate == 0) {
     	spawnCloud();
     }
+    else if (Math.round(totalElapsedTime) % flagSpawnRate == 0) {
+      spawnFlag();
+  }
   
     // Increase speed of trees as game progresses
     if (Math.round(totalElapsedTime) % 1000 == 0) {
@@ -376,8 +446,13 @@ function play(delta) {
     }
 
     if (Math.round(totalElapsedTime) % 1000 == 0) {
-        cloudVerticalSpeed += cloudVerticalSpeedIncrease;
+      flagSpeed += flagSpeedIncrease;
+      if (flagSpawnRate > 20) {
+          flagSpawnRate -= 10;
+      }
+      cloudVerticalSpeed += cloudVerticalSpeedIncrease;
     }
+
 
     // Check for collision
     treeSprites.forEach((treeSprite) => {
@@ -397,7 +472,18 @@ function play(delta) {
             state = end;
           } 
     })
-    score = Math.floor(totalElapsedTime*0.3);
+
+    flagSprites.forEach((flagSprite) => {
+      if (hitTestRectangle(player, flagSprite) && (flagSprite.visible)) {
+          //There's a collision
+          // message.text = "hit!";
+          flagSprite.visible = false;
+          score = score + 100;
+        } 
+  })
+
+    //score = Math.floor(totalElapsedTime*0.3);
+    score += delta*0.3;
 }
 
 function hitTestRectanglePoints(r1x, r1y, r1width, r1height,
@@ -482,6 +568,13 @@ function spawnTree() {
                     break;
                 }
             }
+            for(let i = 0; i < flagSprites.length; i++) {
+              var otherFlagSprite = flagSprites[i];
+              if (hitTestRectangle(treeSprite, otherFlagSprite) ) {
+                  collided = true;
+                  break;
+              }
+            }
     } while (collided);
     gameScene.addChild(treeSprite);
     treeSprites.push(treeSprite);
@@ -511,9 +604,50 @@ function spawnSnowman() {
                     break;
                 }
             }
+            for (let i = 0; i < flagSprites.length; i++) {
+              var otherFlagSprite = flagSprites[i];
+              if (hitTestRectangle(snowmanSprite, otherFlagSprite) ) {
+                  collided = true;
+                  break;
+              }
+          }
     } while (collided);
     gameScene.addChild(snowmanSprite);
     snowmanSprites.push(snowmanSprite);
+}
+function spawnFlag() {
+  // set flag position
+  let flagSprite = new PIXI.Sprite(flagTextures[flagMappings["red"]]);
+  let collided;
+  do {
+      let xSpawnPosition = Math.random() * (app.renderer.width - 1 - flagSprite.width) + 1;
+      flagSprite.position.set(xSpawnPosition, (app.renderer.height - 100));
+      collided = false;
+      for (let i = 0; i < treeSprites.length; i++) {
+          var otherTreeSprite = treeSprites[i];
+          if (hitTestRectangle(flagSprite, otherTreeSprite) ) {
+              collided = true;
+              break;
+          }
+      } 
+      if (!collided)
+          for (let i = 0; i < snowmanSprites.length; i++) {
+              var otherSnowmanSprite = snowmanSprites[i];
+              if (hitTestRectangle(flagSprite, otherSnowmanSprite) ) {
+                  collided = true;
+                  break;
+              }
+          }
+          for (let i = 0; i < flagSprites.length; i++) {
+            var otherFlagSprite = flagSprites[i];
+            if (hitTestRectangle(flagSprite, otherFlagSprite) ) {
+                collided = true;
+                break;
+            }
+        }
+  } while (collided);
+  gameScene.addChild(flagSprite);
+  flagSprites.push(flagSprite);
 }
 
 function spawnCloud() {
