@@ -54,26 +54,25 @@ let flagSprites = [];
 
 // speed of snowman and tree are the same
 let treeSpeed = -5;
-let treeSpeedIncrease = -1;
 let treeSpawnRate = 100;
 
 let snowmanSpeed = -5;
-let snowmanSpeedIncrease = -1;
 let snowmanSpawnRate = 120;
 
 let flagSpeed = -5;
-let flagSpeedIncrease = -1;
 let flagSpawnRate = 150;
 
 let cloudHorizontalSpeed = 5;
 let cloudVerticalSpeed = 0;
-let cloudVerticalSpeedIncrease = -1;
 let cloudSpawnRate = 120;
 
+let speedIncrease = -1;
+let downAcceleration = 0;
+
 let totalElapsedTime = 0.0;
-let treeSpeedDueToDownKey = 0;
-let snowmanSpeedDueToDownKey = 0;
-let flagSpeedDuetoDownKey = 0;
+// let treeSpeedDueToDownKey = 0;
+// let snowmanSpeedDueToDownKey = 0;
+// let flagSpeedDuetoDownKey = 0;
 
 let pause = false;
 
@@ -275,16 +274,12 @@ function setup() {
     //Down
     down.press = () => {
       if(pause == false) {
-        treeSpeedDueToDownKey = -5;
-        snowmanSpeedDueToDownKey = -5;
-        flagSpeedDuetoDownKey = -5;
+        downAcceleration = -5;
       }
     };
     down.release = () => {
         if (!up.isDown) {
-            treeSpeedDueToDownKey = 0;
-            snowmanSpeedDueToDownKey = 0;
-            flagSpeedDuetoDownKey = 0;
+            downAcceleration = 0;
         }
     };
     //Pause
@@ -292,15 +287,13 @@ function setup() {
       treeSpeed = 0;
       treeSpeedIncrease = 0;
       treeSpawnRate = 0;
-      treeSpeedDueToDownKey = 0;
+      downAcceleration = 0;
       snowmanSpeed = 0;
       snowmanSpeedIncrease = 0;
       snowmanSpawnRate = 0;
-      snowmanSpeedDueToDownKey = 0;
       flagSpeed = 0;
       flagSpeedIncrease = 0;
       flagSpawnRate = 0;
-      flagSpeedDuetoDownKey = 0;
       cloudHorizontalSpeed = 0;
       cloudVerticalSpeed = 0;
       cloudVerticalSpeedIncrease = 0;
@@ -334,8 +327,7 @@ function setup() {
     pause.press = () => {
         
             player.vx = 0;
-            treeSpeedDueToDownKey = 0;
-            snowmanSpeedDueToDownKey = 0;
+            downAcceleration = 0;
 
             treeSpeed = 0;
             treeSpeedIncrease = 0;
@@ -430,14 +422,13 @@ function keyboard(keyCode) {
 function gameLoop(delta) {
     //Runs the current game `state` in a loop and renders the sprites
     totalElapsedTime += delta;
+    // totalElapsedTime += app.ticker.elapsedMS/1000;
     scoreDisplay.text = "Score: " + Math.round(score);
     state(delta)
 }
 
 function play(delta) {
     // Update player position
-    //player.x += player.vx;
-
     if (player.x <= 0) {
     	if (player.vx < 0) {
     		player.x += 0
@@ -454,67 +445,61 @@ function play(delta) {
     }
     else {
     	player.x += player.vx
-    }    // if (player.x >= 1190) {
-    // 	player.x = 1;
-    // } else if (player.x <= 0) {
-    // 	player.x = 1;
-    // } else {
-    // 	player.x += player.vx;
-    // }
-
-
+    }
 
     // Move trees upward
     treeSprites.forEach((treeSprite) => {
-        treeSprite.y += treeSpeed + treeSpeedDueToDownKey;
+        treeSprite.y += treeSpeed + downAcceleration;
     })
 
     snowmanSprites.forEach((snowmanSprite) => {
-        snowmanSprite.y += snowmanSpeed + snowmanSpeedDueToDownKey;
+        snowmanSprite.y += snowmanSpeed + downAcceleration;
     })
 
     flagSprites.forEach((flagSprite) => {
-      flagSprite.y += flagSpeed + flagSpeedDuetoDownKey;
+      flagSprite.y += flagSpeed + downAcceleration;
     })
     cloudSprites.forEach((cloudSprite) => {
         cloudSprite.x += cloudHorizontalSpeed;
-        cloudSprite.y += cloudVerticalSpeed + treeSpeedDueToDownKey;
+        cloudSprite.y += cloudVerticalSpeed + downAcceleration;
     })
 
     if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
         spawnTree();
     }
-    else if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
+    if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
         spawnSnowman();
     } 
     if (Math.round(totalElapsedTime) % cloudSpawnRate == 0) {
     	spawnCloud();
     }
-    else if (Math.round(totalElapsedTime) % flagSpawnRate == 0) {
-      spawnFlag();
-  }
+    if (Math.round(totalElapsedTime) % flagSpawnRate == 0) {
+        spawnFlag();
+    }
   
+    // ======================================================
+    console.log(totalElapsedTime);
     // Increase speed of trees as game progresses
     if (Math.round(totalElapsedTime) % 1000 == 0) {
-        treeSpeed += treeSpeedIncrease;
+        treeSpeed += speedIncrease;
         if (treeSpawnRate > 20) {
             treeSpawnRate -= 10;
         }
     }
 
     if (Math.round(totalElapsedTime) % 1000 == 0) {
-        snowmanSpeed += snowmanSpeedIncrease;
+        snowmanSpeed += speedIncrease;
         if (snowmanSpawnRate > 20) {
             snowmanSpawnRate -= 10;
         }
     }
 
     if (Math.round(totalElapsedTime) % 1000 == 0) {
-      flagSpeed += flagSpeedIncrease;
+      flagSpeed += speedIncrease;
       if (flagSpawnRate > 20) {
           flagSpawnRate -= 10;
       }
-      cloudVerticalSpeed += cloudVerticalSpeedIncrease;
+      cloudVerticalSpeed += speedIncrease;
     }
 
     // Check for collision
