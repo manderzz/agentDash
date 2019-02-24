@@ -161,7 +161,7 @@ function setup() {
     	fill: "black"
     })
 
-    scoreDisplay = new PIXI.Text("Score: " + score,scoreDisplay_style);
+    scoreDisplay = new PIXI.Text("Score: " + Math.round(score), scoreDisplay_style);
 
     app.stage.addChild(scoreDisplay);
     // if (state === end) {
@@ -251,11 +251,10 @@ function setup() {
     //Down
     down.press = () => {
       if(pause == false) {
-        treeSpeedDueToDownKey = -1;
-        snowmanSpeedDueToDownKey = -1;
-        flagSpeedDuetoDownKey = -1;
+        treeSpeedDueToDownKey = -5;
+        snowmanSpeedDueToDownKey = -5;
+        flagSpeedDuetoDownKey = -5;
       }
-        
     };
     down.release = () => {
         if (!up.isDown && player.vx === 0) {
@@ -308,6 +307,62 @@ function setup() {
       pause = false;
     }
 
+    pause.press = () => {
+        
+            player.vx = 0;
+            treeSpeedDueToDownKey = 0;
+            snowmanSpeedDueToDownKey = 0;
+
+            treeSpeed = 0;
+            treeSpeedIncrease = 0;
+            treeSpawnRate = 0;
+
+            snowmanSpeed = 0;
+            snowmanSpeedIncrease = 0;
+            snowmanSpawnRate = 0;
+
+            cloudHorizontalSpeed = 0;
+            cloudVerticalSpeed = 0;
+            cloudVerticalSpeedIncrease = 0;
+            cloudSpawnRate = 0;
+
+            flagSpeed = 0;
+            flagSpeedIncrease = 0;
+            flagSpawnRate = 0;
+
+            player.texture = textures[mappings["default"]];
+        
+    };
+
+
+    enter.press = () => {
+
+            player.vx = 0;
+            player.vy = 0;
+
+            treeSpeed = -5;
+            treeSpeedIncrease = -5;
+            treeSpawnRate = 100;
+
+            snowmanSpeed = -5;
+            snowmanSpeedIncrease = -5;
+            snowmanSpawnRate = 120;
+
+            cloudHorizontalSpeed = 5;
+            cloudVerticalSpeed = 0;
+            cloudVerticalSpeedIncrease = -1;
+            cloudSpawnRate = 120;
+
+            flagSpeed = -5;
+            flagSpeedIncrease = -5;
+            flagSpawnRate = 160;
+
+            pause = false;
+    };
+
+    
+
+
     // Set the game state to play
     state = play;
 
@@ -354,7 +409,7 @@ function keyboard(keyCode) {
 function gameLoop(delta) {
     //Runs the current game `state` in a loop and renders the sprites
     totalElapsedTime += delta;
-    scoreDisplay.text = "Score: " + score;
+    scoreDisplay.text = "Score: " + Math.round(score);
     state(delta)
 }
 
@@ -648,6 +703,7 @@ function spawnCloud() {
     cloudContainer.addChild(cloudSprite);
     cloudSprites.push(cloudSprite);
 }
+
 
 
 function end() {
