@@ -5,20 +5,6 @@ if(!PIXI.utils.isWebGLSupported()){
     type = "canvas"
 }
 
-// var stage = new PIXI.Container();
-// var renderer = PIXI.autoDetectRenderer(256, 256);
-// document.body.appendChild(renderer.view);
-
-// PIXI.loader.add("images/cat.png").load(setup);
-
-// function setup() {
-//   var cat = new PIXI.Sprite(PIXI.loader.resources["images/cat.png"].texture);
-
-//   stage.addChild(cat);
-
-//   renderer.render(stage);
-// }
-
 //Create a Pixi Application
 let app = new PIXI.Application({ 
     width: 1200,         // default: 800
@@ -47,7 +33,7 @@ PIXI.loader
 app.renderer.backgroundColor = 0xfcfcf9;
 
 // Global variables
-let player, state, gameScene, gameOverScene, message;
+let player, state, gameScene, gameOverScene, message, scoreDisplay;
 let treeTexture;
 let treeSprites = [];
 let snowmanTexture;
@@ -56,6 +42,8 @@ let snowmanSprites = [];
 let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
 let snowmanSpeedDueToDownKey = 0;
+
+var score = 0;
 
 //This `setup` function will run when the image has loaded
 function setup() {
@@ -69,9 +57,6 @@ function setup() {
     treeTexture = PIXI.utils.TextureCache[tree];
     snowmanTexture = PIXI.utils.TextureCache[snowman];
 
-    //Create a rectangle object that defines the position and
-    //size of the sub-image you want to extract from the texture
-    //(`Rectangle` is an alias for `PIXI.Rectangle`)
 
     // Array of textures for player
     let textures = [];
@@ -96,23 +81,37 @@ function setup() {
     player.position.set(app.renderer.width/2, app.renderer.height/10);
     gameScene.addChild(player);
 
+    //score display stuff
+    let scoreDisplay_style = new PIXI.TextStyle({
+    	fontFamily: "Futura",
+    	fontSize: 18,
+    	fill: "black"
+    })
+
+    scoreDisplay = new PIXI.Text("Score: " + score,scoreDisplay_style);
+
+    app.stage.addChild(scoreDisplay);
+    // if (state === end) {
+    // 	scoreDisplay.position.set(600,app.stage.height+200);
+    // }
+
     // Initialize the game over scene
     gameOverScene = new PIXI.Container();
     app.stage.addChild(gameOverScene);
     gameOverScene.visible = false;
 
-    let style = new PIXI.TextStyle({
+    let gameOver_style = new PIXI.TextStyle({
         fontFamily: "Futura",
         fontSize: 64,
         fill: "red"
     });
-    message = new PIXI.Text("The End!", style);
+    message = new PIXI.Text("The End!", gameOver_style);
     message.x = 500;
     message.y = app.stage.height;
     gameOverScene.addChild(message);
 
     const restart = new PIXI.Text("Restart");
-    restart.position.set(600,app.stage.height+100);
+    restart.position.set(600,app.stage.height+200);
     restart.buttonMode = true;
 	restart.interactive = true;
 	restart.on('click', (event) => {
@@ -167,14 +166,8 @@ function setup() {
     //Down
     down.press = () => {
         treeSpeedDueToDownKey = -1;
-        // player.vy = 5;
-        // player.vx = 0;
     };
     down.release = () => {
-        // if (!up.isDown && player.vx === 0) {
-        // player.vy = 0;
-        // }
-
         if (!up.isDown && player.vx === 0) {
             treeSpeedDueToDownKey = 0;
         }
@@ -227,6 +220,7 @@ function keyboard(keyCode) {
 function gameLoop(delta) {
     //Runs the current game `state` in a loop and renders the sprites
     totalElapsedTime += delta;
+    scoreDisplay.text = "Score: " + score;
     state(delta)
 }
   
@@ -294,6 +288,8 @@ function play(delta) {
             state = end;
           } 
     })
+
+    score = Math.floor(totalElapsedTime*0.3);
 }
 
 function hitTestRectangle(r1, r2) {
@@ -369,6 +365,9 @@ function spawnSnowman() {
 function end() {
     gameScene.visible = false;
     gameOverScene.visible = true;
-    // console.log("Game Over");
+    scoreDisplay.x = 600;
+    scoreDisplay.y = 300;
+    // scoreDisplay.position.set(600,app.stage.height+200)
+    // console.log(score);
     //All the code that should run at the end of the game
 }
