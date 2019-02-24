@@ -249,7 +249,7 @@ let treeSpeed = -5;
 let treeSpeedIncrease = -1;
 let treeSpawnRate = 100;
 
-let snowmanSpeed = -2;
+let snowmanSpeed = -5;
 let snowmanSpeedIncrease = -1;
 let snowmanSpawnRate = 100;
 
