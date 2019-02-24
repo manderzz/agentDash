@@ -26,19 +26,22 @@ const snowman = "images/snowman.png";
 const cloud = "images/clouds_opaque.png";
 const flags = "images/flags.png";
 
+const bigCloud = "images/bigcloud.png";
+const smallCloud = "images/smallcloud.png";
+
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
 
 //load an image and run the `setup` function when it's done
 PIXI.loader
 //   .add([mainCharacter])
-  .add([playerLeft, playerRight, playerDefault, tree, snowman, cloud, flags])
+  .add([playerLeft, playerRight, playerDefault, tree, snowman, bigCloud, smallCloud, flags])
   .load(setup);
 
 app.renderer.backgroundColor = 0xfcfcf9;
 
 // Global variables
-let player, state, gameScene, gameOverScene, message, scoreDisplay, cloudContainer;
+let player, state, gameScene, gameOverScene, message, scoreDisplay, startMessage, cloudContainer;
 let treeTexture;
 let treeSprites = [];
 let snowmanTexture;
@@ -116,14 +119,18 @@ function setup() {
 
     // =============================================
     // Creating cloud sprites
-    let cloudTexture = PIXI.utils.TextureCache[cloud];
-    let cloudRectangle = new PIXI.Rectangle(0,0,550,275);
-    let subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
-    cloudTextures.push(subCloudTexture);
+    let bigCloudTexture = PIXI.utils.TextureCache[bigCloud];
+    let smallCloudTexture = PIXI.utils.TextureCache[smallCloud];
+    cloudTextures.push(bigCloudTexture);
+    cloudTextures.push(smallCloudTexture);
 
-    cloudRectangle = new PIXI.Rectangle(210,275,340,275);
-    subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
-    cloudTextures.push(subCloudTexture);
+    // let cloudRectangle = new PIXI.Rectangle(0,0,550,275);
+    // let subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
+    // cloudTextures.push(subCloudTexture);
+
+    // cloudRectangle = new PIXI.Rectangle(210,275,340,275);
+    // subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
+    // cloudTextures.push(subCloudTexture);
     // =============================================
 
     // Array of textures for player
@@ -170,6 +177,48 @@ function setup() {
         redFlagTextures.push(smallTexture);
     }
 
+
+        // Initialize the start game scene
+        startGameScene = new PIXI.Container();
+        app.stage.addChild(startGameScene);
+        startGameScene.visible = true;
+    
+        let gameStart_style = new PIXI.TextStyle({
+          fontFamily: "Futura",
+          fontSize: 64,
+          fill: "black",
+          stroke: '#ff3300',
+          strokeThickness: 4,
+          dropShadow: true,
+          dropShadowColor: "#000000",
+          dropShadowBlur: 4,
+          dropShadowAngle: Math.PI / 6,
+          dropShadowDistance: 6
+        });
+    
+        startMessage = new PIXI.Text("Agent Dash", gameStart_style);
+        startMessage.anchor.set(0.5);
+        startMessage.x = 600;
+        startMessage.y = app.stage.height + 50;
+        startGameScene.addChild(startMessage);
+    
+        const start = new PIXI.Text("Start Game");
+        start.anchor.set(0.5);
+        start.position.set(600,app.stage.height+200);
+        start.buttonMode = true;
+      start.interactive = true;
+      start.on('click', (event) => {
+        console.log("start game");
+           startGameScene.visible = false;
+           state = play;
+           app.ticker.add(delta => gameLoop(delta));
+           app.ticker.start();
+      });
+      startGameScene.addChild(start);
+    
+    
+    
+
     player = new PIXI.Sprite(textures[mappings["default"]]);
 
     // Initial velocity (note: vertical velocity is obsolete)
@@ -177,7 +226,8 @@ function setup() {
     player.vy = 0;
 
     // Initial Position of the player
-    player.position.set(app.renderer.width/2, app.renderer.height/10);
+    player.anchor.set(0.5)
+    player.position.set(app.renderer.width/2, app.renderer.height - 650);
     gameScene.addChild(player);
 
     // Placing flag on image
@@ -213,11 +263,13 @@ function setup() {
     });
 
     message = new PIXI.Text("The End!", gameOver_style);
-    message.x = 500;
+    message.anchor.set(0.5);
+    message.x = 600;
     message.y = app.stage.height;
     gameOverScene.addChild(message);
 
     const restart = new PIXI.Text("Restart");
+    restart.anchor.set(0.5);
     restart.position.set(600,app.stage.height+200);
     restart.buttonMode = true;
 	restart.interactive = true;
@@ -409,10 +461,10 @@ function setup() {
     };
 
     // Set the game state to play
-    state = play;
+   // state = play;
 
-    app.ticker.add(delta => gameLoop(delta));
-    app.ticker.start();
+    // app.ticker.add(delta => gameLoop(delta));
+    // app.ticker.start();
 }
 //The `keyboard` helper function
 function keyboard(keyCode) {
@@ -550,7 +602,6 @@ function play(delta) {
       }
       cloudVerticalSpeed += cloudVerticalSpeedIncrease;
     }
-
 
     // Check for collision
     treeSprites.forEach((treeSprite) => {
@@ -846,8 +897,10 @@ function end() {
     gameScene.visible = false;
     cloudContainer.visible = false;
     gameOverScene.visible = true;
+    scoreDisplay.anchor.set(0.5);
     scoreDisplay.x = 600;
-    scoreDisplay.y = 300;
+    scoreDisplay.y = 400;
+    // scoreDisplay.position.set(600,app.stage.height+200)
     // console.log(score);
     //All the code that should run at the end of the game
 }
