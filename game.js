@@ -101,9 +101,20 @@ function setup() {
         fill: "red"
     });
     message = new PIXI.Text("The End!", style);
-    message.x = 120;
-    message.y = app.stage.height / 2 - 32;
+    message.x = 500;
+    message.y = app.stage.height;
     gameOverScene.addChild(message);
+
+    const restart = new PIXI.Text("Restart");
+    restart.position.set(600,app.stage.height+100);
+    restart.buttonMode = true;
+	restart.interactive = true;
+	restart.on('click', (event) => {
+		console.log("restart");
+   		location.reload();
+
+	});
+	gameOverScene.addChild(restart);
 
       //Capture the keyboard arrow keys
     let left = keyboard(37),
@@ -278,7 +289,6 @@ function hitTestRectangle(r1, r2) {
 
 
 function end() {
-    message.text = "You lose"
     gameScene.visible = false;
     gameOverScene.visible = true;
     // console.log("Game Over");
