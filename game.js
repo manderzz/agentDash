@@ -5,20 +5,6 @@ if(!PIXI.utils.isWebGLSupported()){
     type = "canvas"
 }
 
-// var stage = new PIXI.Container();
-// var renderer = PIXI.autoDetectRenderer(256, 256);
-// document.body.appendChild(renderer.view);
-
-// PIXI.loader.add("images/cat.png").load(setup);
-
-// function setup() {
-//   var cat = new PIXI.Sprite(PIXI.loader.resources["images/cat.png"].texture);
-
-//   stage.addChild(cat);
-
-//   renderer.render(stage);
-// }
-
 //Create a Pixi Application
 let app = new PIXI.Application({ 
     width: 1200,         // default: 800
@@ -47,7 +33,7 @@ PIXI.loader
 app.renderer.backgroundColor = 0xfcfcf9;
 
 // Global variables
-let player, state, gameScene, gameOverScene, message;
+let player, state, gameScene, gameOverScene, message, scoreDisplay;
 let treeTexture;
 let treeSprites = [];
 let snowmanTexture;
@@ -56,6 +42,8 @@ let snowmanSprites = [];
 let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
 let snowmanSpeedDueToDownKey = 0;
+
+var score = 0;
 
 const mappings = {
     "left": 3,
@@ -75,9 +63,6 @@ function setup() {
     treeTexture = PIXI.utils.TextureCache[tree];
     snowmanTexture = PIXI.utils.TextureCache[snowman];
 
-    //Create a rectangle object that defines the position and
-    //size of the sub-image you want to extract from the texture
-    //(`Rectangle` is an alias for `PIXI.Rectangle`)
 
     // Array of textures for player
     let textures = [];
@@ -100,24 +85,38 @@ function setup() {
     player.position.set(app.renderer.width/2, app.renderer.height/10);
     gameScene.addChild(player);
 
+    //score display stuff
+    let scoreDisplay_style = new PIXI.TextStyle({
+    	fontFamily: "Futura",
+    	fontSize: 18,
+    	fill: "black"
+    })
+
+    scoreDisplay = new PIXI.Text("Score: " + score,scoreDisplay_style);
+
+    app.stage.addChild(scoreDisplay);
+    // if (state === end) {
+    // 	scoreDisplay.position.set(600,app.stage.height+200);
+    // }
+
     // Initialize the game over scene
     gameOverScene = new PIXI.Container();
     app.stage.addChild(gameOverScene);
     gameOverScene.visible = false;
 
-    let style = new PIXI.TextStyle({
+    let gameOver_style = new PIXI.TextStyle({
         fontFamily: "Futura",
         fontSize: 64,
         fill: "red"
     });
 
-    message = new PIXI.Text("The End!", style);
+    message = new PIXI.Text("The End!", gameOver_style);
     message.x = 500;
     message.y = app.stage.height;
     gameOverScene.addChild(message);
 
     const restart = new PIXI.Text("Restart");
-    restart.position.set(600,app.stage.height+100);
+    restart.position.set(600,app.stage.height+200);
     restart.buttonMode = true;
 	restart.interactive = true;
 	restart.on('click', (event) => {
@@ -171,21 +170,14 @@ function setup() {
         if (!left.isDown && player.vy === 0) {
             player.vx = 0;
             player.texture = textures[mappings["default"]];
-            
         }
     };
     //Down
     down.press = () => {
         treeSpeedDueToDownKey = -1;
         snowmanSpeedDueToDownKey = -1;
-        // player.vy = 5;
-        // player.vx = 0;
     };
     down.release = () => {
-        // if (!up.isDown && player.vx === 0) {
-        // player.vy = 0;
-        // }
-
         if (!up.isDown && player.vx === 0) {
             treeSpeedDueToDownKey = 0;
         }
@@ -200,48 +192,48 @@ function setup() {
 
     app.ticker.add(delta => gameLoop(delta));
     app.ticker.start();
-    
 }
 //The `keyboard` helper function
 function keyboard(keyCode) {
-  var key = {};
-  key.code = keyCode;
-  key.isDown = false;
-  key.isUp = true;
-  key.press = undefined;
-  key.release = undefined;
-  //The `downHandler`
-  key.downHandler = event => {
-    if (event.keyCode === key.code) {
-      if (key.isUp && key.press) key.press();
-      key.isDown = true;
-      key.isUp = false;
-    }
-    event.preventDefault();
-  };
-  //The `upHandler`
-  key.upHandler = event => {
-    if (event.keyCode === key.code) {
-      if (key.isDown && key.release) key.release();
-      key.isDown = false;
-      key.isUp = true;
-    }
-    event.preventDefault();
-  };
-  //Attach event listeners
-  window.addEventListener(
-    "keydown", key.downHandler.bind(key), false
-  );
-  window.addEventListener(
-    "keyup", key.upHandler.bind(key), false
-  );
-  return key;
+    var key = {};
+    key.code = keyCode;
+    key.isDown = false;
+    key.isUp = true;
+    key.press = undefined;
+    key.release = undefined;
+    //The `downHandler`
+    key.downHandler = event => {
+        if (event.keyCode === key.code) {
+        if (key.isUp && key.press) key.press();
+        key.isDown = true;
+        key.isUp = false;
+        }
+        event.preventDefault();
+    };
+    //The `upHandler`
+    key.upHandler = event => {
+        if (event.keyCode === key.code) {
+        if (key.isDown && key.release) key.release();
+        key.isDown = false;
+        key.isUp = true;
+        }
+        event.preventDefault();
+    };
+    //Attach event listeners
+    window.addEventListener(
+        "keydown", key.downHandler.bind(key), false
+    );
+    window.addEventListener(
+        "keyup", key.upHandler.bind(key), false
+    );
+    return key;
 }
 
 
 function gameLoop(delta) {
     //Runs the current game `state` in a loop and renders the sprites
     totalElapsedTime += delta;
+    scoreDisplay.text = "Score: " + score;
     state(delta)
 }
 // speed of snowman and tree are the same
@@ -251,7 +243,7 @@ let treeSpawnRate = 100;
 
 let snowmanSpeed = -5;
 let snowmanSpeedIncrease = -1;
-let snowmanSpawnRate = 100;
+let snowmanSpawnRate = 120;
 
 function play(delta) {
     // Update player position
@@ -270,8 +262,7 @@ function play(delta) {
     if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
         spawnTree();
     }
-
-    if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
+    else if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
         spawnSnowman();
     }
   
@@ -309,9 +300,12 @@ function play(delta) {
             state = end;
           } 
     })
+
+    score = Math.floor(totalElapsedTime*0.3);
 }
 
-function hitTestRectangle(r1, r2) {
+function hitTestRectanglePoints(r1x, r1y, r1width, r1height,
+    r2x, r2y, r2width, r2height) {
 
   //Define the variables we'll need to calculate
   let hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
@@ -320,24 +314,24 @@ function hitTestRectangle(r1, r2) {
   hit = false;
 
   //Find the center points of each sprite
-  r1.centerX = r1.x + r1.width / 2;
-  r1.centerY = r1.y + r1.height / 2;
-  r2.centerX = r2.x + r2.width / 2;
-  r2.centerY = r2.y + r2.height / 2;
+  r1centerX = r1x + r1width / 2;
+  r1centerY = r1y + r1height / 2;
+  r2centerX = r2x + r2width / 2;
+  r2centerY = r2y + r2height / 2;
 
   //Find the half-widths and half-heights of each sprite
-  r1.halfWidth = r1.width / 2;
-  r1.halfHeight = r1.height / 2;
-  r2.halfWidth = r2.width / 2;
-  r2.halfHeight = r2.height / 2;
+  r1halfWidth = r1width / 2;
+  r1halfHeight = r1height / 2;
+  r2halfWidth = r2width / 2;
+  r2halfHeight = r2height / 2;
 
   //Calculate the distance vector between the sprites
-  vx = r1.centerX - r2.centerX;
-  vy = r1.centerY - r2.centerY;
+  vx = r1centerX - r2centerX;
+  vy = r1centerY - r2centerY;
 
   //Figure out the combined half-widths and half-heights
-  combinedHalfWidths = r1.halfWidth + r2.halfWidth;
-  combinedHalfHeights = r1.halfHeight + r2.halfHeight;
+  combinedHalfWidths = r1halfWidth + r2halfWidth;
+  combinedHalfHeights = r1halfHeight + r2halfHeight;
 
   //Check for a collision on the x axis
   if (Math.abs(vx) < combinedHalfWidths) {
@@ -363,10 +357,36 @@ function hitTestRectangle(r1, r2) {
 };
 
 
+function hitTestRectangle(r1, r2) {
+    return hitTestRectanglePoints(r1.x, r1.y, r1.width, r1.height,
+        r2.x, r2.y, r2.width, r2.height);
+}
+
+
 function spawnTree() {
     // set tree position
     let treeSprite = new PIXI.Sprite(treeTexture);
-    treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (app.renderer.height - 200));
+    let collided;
+    do {
+        let xSpawnPosition = Math.random() * (app.renderer.width - 1 - treeSprite.width) + 1;
+        treeSprite.position.set(xSpawnPosition, (app.renderer.height - 100));
+        collided = false;
+        for (let i = 0; i < treeSprites.length; i++) {
+            var otherTreeSprite = treeSprites[i];
+            if (hitTestRectangle(treeSprite, otherTreeSprite) ) {
+                collided = true;
+                break;
+            }
+        } 
+        if (!collided)
+            for (let i = 0; i < snowmanSprites.length; i++) {
+                var otherSnowmanSprite = snowmanSprites[i];
+                if (hitTestRectangle(treeSprite, otherSnowmanSprite) ) {
+                    collided = true;
+                    break;
+                }
+            }
+    } while (collided);
     gameScene.addChild(treeSprite);
     treeSprites.push(treeSprite);
 }
@@ -375,7 +395,27 @@ function spawnTree() {
 function spawnSnowman() {
     // set tree position
     let snowmanSprite = new PIXI.Sprite(snowmanTexture);
-    snowmanSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (app.renderer.height - 200));
+    let collided;
+    do {
+        let xSpawnPosition = Math.random() * (app.renderer.width - 1 - snowmanSprite.width) + 1;
+        snowmanSprite.position.set(xSpawnPosition, (app.renderer.height - 50));
+        collided = false;
+        for (let i = 0; i < treeSprites.length; i++) {
+            var otherTreeSprite = treeSprites[i];
+            if (hitTestRectangle(snowmanSprite, otherTreeSprite) ) {
+                collided = true;
+                break;
+            }
+        } 
+        if (!collided)
+            for (let i = 0; i < snowmanSprites.length; i++) {
+                var otherSnowmanSprite = snowmanSprites[i];
+                if (hitTestRectangle(snowmanSprite, otherSnowmanSprite) ) {
+                    collided = true;
+                    break;
+                }
+            }
+    } while (collided);
     gameScene.addChild(snowmanSprite);
     snowmanSprites.push(snowmanSprite);
 }
@@ -384,6 +424,9 @@ function spawnSnowman() {
 function end() {
     gameScene.visible = false;
     gameOverScene.visible = true;
-    // console.log("Game Over");
+    scoreDisplay.x = 600;
+    scoreDisplay.y = 300;
+    // scoreDisplay.position.set(600,app.stage.height+200)
+    // console.log(score);
     //All the code that should run at the end of the game
 }
