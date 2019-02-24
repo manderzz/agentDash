@@ -16,7 +16,11 @@ let app = new PIXI.Application({
 );
 
 // Texture files to be loaded as sprites
-const mainCharacter = "images/skier.png";
+// const mainCharacter = "images/skier.png";
+const playerLeft = "images/skier_left.png";
+const playerRight = "images/skier_right.png";
+const playerDefault = "images/skier_default.png";
+
 const tree = "images/tree_a.png";
 const snowman = "images/snowman.png";
 const cloud = "images/clouds_opaque.png";
@@ -27,10 +31,8 @@ document.body.appendChild(app.view);
 
 //load an image and run the `setup` function when it's done
 PIXI.loader
-  .add([mainCharacter])
-  .add([tree])
-  .add([snowman])
-  .add([cloud])
+//   .add([mainCharacter])
+  .add([playerLeft, playerRight, playerDefault, tree, snowman, cloud, flags])
   .load(setup);
 
 app.renderer.backgroundColor = 0xfcfcf9;
@@ -75,9 +77,9 @@ let flagSpawnRate = 80;
 var score = 0;
 
 const mappings = {
-    "left": 3,
-    "right": 1,
-    "default": 4
+    "left": 1,
+    "right": 2,
+    "default": 0
 };
 
 const flagMappings = {
@@ -97,7 +99,7 @@ function setup() {
 
     //Create the `tileset` sprite from the texture
     // let texture = PIXI.utils.TextureCache[mainCharacter];
-    let texture = PIXI.BaseTexture.fromImage(mainCharacter);
+    // let texture = PIXI.BaseTexture.fromImage(mainCharacter);
     treeTexture = PIXI.utils.TextureCache[tree];
     snowmanTexture = PIXI.utils.TextureCache[snowman];
 
@@ -118,14 +120,25 @@ function setup() {
 
     // Array of textures for player
     let textures = [];
+    let defaultTexture = PIXI.utils.TextureCache[playerDefault];
+    let leftTexture = PIXI.utils.TextureCache[playerLeft];
+    let rightTexture = PIXI.utils.TextureCache[playerRight];
 
-    for (var i=0; i<3; i++) {
-        for (var j=0; j<2; j++) {
-            let rectangle = new PIXI.Rectangle(i*128,j*128,128,128);
-            let smallTexture = new PIXI.Texture(texture, rectangle);
-            textures.push(smallTexture); // Append texture to the array of textures
-        }
-    }
+    textures.push(defaultTexture)
+    textures.push(leftTexture)
+    textures.push(rightTexture);
+
+
+
+    // const offset = 5;
+
+    // for (var i=0; i<3; i++) {
+    //     for (var j=0; j<2; j++) {
+    //         let rectangle = new PIXI.Rectangle(i*128+offset,j*128+offset,128-2*offset,128-2*offset);
+    //         let smallTexture = new PIXI.Texture(texture, rectangle);
+    //         textures.push(smallTexture); // Append texture to the array of textures
+    //     }
+    // }
     // Array of textures for flags
     // 196x210
 
@@ -576,7 +589,9 @@ function spawnTree() {
               }
             }
     } while (collided);
+
     gameScene.addChild(treeSprite);
+
     treeSprites.push(treeSprite);
 }
 
