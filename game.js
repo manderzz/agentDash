@@ -82,10 +82,12 @@ function setup() {
 
     player = new PIXI.Sprite(defaultTexture);
 
+    // Initial velocity (note: vertical velocity is obsolete)
     player.vx = 0;
     player.vy = 0;
 
-    player.position.set(app.renderer.width/2, app.renderer.height/2);
+    // Initial Position of the player
+    player.position.set(app.renderer.width/2, app.renderer.height/10);
     gameScene.addChild(player);
 
     // Initialize the game over scene
@@ -213,6 +215,7 @@ function gameLoop(delta) {
   
 let treeSpeed = -2;
 let treeSpeedIncrease = -1;
+let treeSpawnRate = 100;
 
 function play(delta) {
     // Update player position
@@ -224,21 +227,17 @@ function play(delta) {
         treeSprite.y += treeSpeed + treeSpeedDueToDownKey;
     })
 
-    if (Math.round(totalElapsedTime) % 100 == 0) {
+    if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
         spawnTree();
     }
 
     // Increase speed of trees as game progresses
     if (Math.round(totalElapsedTime) % 1000 == 0) {
         treeSpeed += treeSpeedIncrease;
+        if (treeSpawnRate > 20) {
+            treeSpawnRate -= 10;
+        }
     }
-
-
-    // console.log(delta);
-    // // Spawn a new tree once in a while
-    // if (delta % 2 == 0) {
-    //     spawnTree();
-    // }
 
     // Check for collision
     treeSprites.forEach((treeSprite) => {
