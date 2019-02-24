@@ -29,6 +29,7 @@ let app = new PIXI.Application({
     }
 );
 
+// Texture files to be loaded as sprites
 const mainCharacter = "images/skier.png";
 const tree = "images/tree_a.png";
 
@@ -43,9 +44,13 @@ PIXI.loader
 
 app.renderer.backgroundColor = 0xfcfcf9;
 
-
 // Global variables
-let player, state, treeSprite, gameScene, gameOverScene, message;
+let player, state, gameScene, gameOverScene, message;
+let treeTexture;
+let treeSprites = [];
+
+let totalElapsedTime = 0.0;
+let treeSpeedDueToDownKey = 0;
 
 //This `setup` function will run when the image has loaded
 function setup() {
@@ -53,11 +58,10 @@ function setup() {
     gameScene = new PIXI.Container();
     app.stage.addChild(gameScene);
 
-
     //Create the `tileset` sprite from the texture
     // let texture = PIXI.utils.TextureCache[mainCharacter];
     let texture = PIXI.BaseTexture.fromImage(mainCharacter);
-    let texture2 = PIXI.utils.TextureCache[tree];
+    treeTexture = PIXI.utils.TextureCache[tree];
 
     //Create a rectangle object that defines the position and
     //size of the sub-image you want to extract from the texture
@@ -83,12 +87,6 @@ function setup() {
 
     player.position.set(app.renderer.width/2, app.renderer.height/2);
     gameScene.addChild(player);
-
-    // set tree position
-    treeSprite = new PIXI.Sprite(texture2);
-    treeSprite.position.set(800,400);
-    // treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (Math.random() * (app.renderer.height - 1) + 1));
-    gameScene.addChild(treeSprite);
 
     // Initialize the game over scene
     gameOverScene = new PIXI.Container();
@@ -123,56 +121,62 @@ function setup() {
          down = keyboard(40);
 
     //Left arrow key `press` method
-  left.press = () => {
-    //Change the cat's velocity when the key is pressed
-    player.vx = -5;
-    player.vy = 0;
-  };
-  
-  //Left arrow key `release` method
-  left.release = () => {
-    //If the left arrow has been released, and the right arrow isn't down,
-    //and the cat isn't moving vertically:
-    //Stop the cat
-    if (!right.isDown && player.vy === 0) {
-      player.vx = 0;
-    }
-  };
-  //Up
-  up.press = () => {
-    player.vy = -5;
-    player.vx = 0;
-  };
-  up.release = () => {
-    if (!down.isDown && player.vx === 0) {
-      player.vy = 0;
-    }
-  };
-  //Right
-  right.press = () => {
-    player.vx = 5;
-    player.vy = 0;
-  };
-  right.release = () => {
-    if (!left.isDown && player.vy === 0) {
-      player.vx = 0;
-    }
-  };
-  //Down
-  down.press = () => {
-    player.vy = 5;
-    player.vx = 0;
-  };
-  down.release = () => {
-    if (!up.isDown && player.vx === 0) {
-      player.vy = 0;
-    }
-  };
+    left.press = () => {
+        //Change the cat's velocity when the key is pressed
+        player.vx = -5;
+        player.vy = 0;
+    };
+    
+    //Left arrow key `release` method
+    left.release = () => {
+        //If the left arrow has been released, and the right arrow isn't down,
+        //and the cat isn't moving vertically:
+        //Stop the cat
+        if (!right.isDown && player.vy === 0) {
+        player.vx = 0;
+        }
+    };
+    //Up
+    up.press = () => {
+        player.vy = -5;
+        player.vx = 0;
+    };
+    up.release = () => {
+        if (!down.isDown && player.vx === 0) {
+        player.vy = 0;
+        }
+    };
+    //Right
+    right.press = () => {
+        player.vx = 5;
+        player.vy = 0;
+    };
+    right.release = () => {
+        if (!left.isDown && player.vy === 0) {
+        player.vx = 0;
+        }
+    };
+    //Down
+    down.press = () => {
+        treeSpeedDueToDownKey = -1;
+        // player.vy = 5;
+        // player.vx = 0;
+    };
+    down.release = () => {
+        // if (!up.isDown && player.vx === 0) {
+        // player.vy = 0;
+        // }
+
+        if (!up.isDown && player.vx === 0) {
+            treeSpeedDueToDownKey = 0;
+        }
+    };
 
     // Set the game state to play
     state = play;
 
     app.ticker.add(delta => gameLoop(delta));
+    app.ticker.start();
     
 }
 //The `keyboard` helper function
@@ -214,26 +218,48 @@ function keyboard(keyCode) {
 
 function gameLoop(delta) {
     //Runs the current game `state` in a loop and renders the sprites
+    totalElapsedTime += delta;
     state(delta)
 }
   
+let treeSpeed = -2;
+let treeSpeedIncrease = -1;
+
 function play(delta) {
-    //All the game logic goes here
-    player.y += player.vy;
+    // Update player position
+    // player.y += player.vy;
     player.x += player.vx;
 
-    if (hitTestRectangle(player, treeSprite)) {
-	  //There's a collision
-		// message.text = "hit!";
-		console.log("collision");
-        treeSprite.tint = 0xff3300;
-        state = end;
-	} else {
-	  //There's no collision
-		// message.text = "No collision...";
-		console.log("shermer");
-    	// treeSprite.tint = 0xccff99;
-	}
+    // Move trees upward
+    treeSprites.forEach((treeSprite) => {
+        treeSprite.y += treeSpeed + treeSpeedDueToDownKey;
+    })
+
+    if (Math.round(totalElapsedTime) % 100 == 0) {
+        spawnTree();
+    }
+
+    // Increase speed of trees as game progresses
+    if (Math.round(totalElapsedTime) % 1000 == 0) {
+        treeSpeed += treeSpeedIncrease;
+    }
+
+
+    // console.log(delta);
+    // // Spawn a new tree once in a while
+    // if (delta % 2 == 0) {
+    //     spawnTree();
+    // }
+
+    // Check for collision
+    treeSprites.forEach((treeSprite) => {
+        if (hitTestRectangle(player, treeSprite)) {
+            //There's a collision
+            // message.text = "hit!";
+            treeSprite.tint = 0xff3300;
+            state = end;
+          } 
+    })
 }
 
 function hitTestRectangle(r1, r2) {
@@ -286,6 +312,15 @@ function hitTestRectangle(r1, r2) {
   //`hit` will be either `true` or `false`
   return hit;
 };
+
+
+function spawnTree() {
+    // set tree position
+    let treeSprite = new PIXI.Sprite(treeTexture);
+    treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (app.renderer.height - 200));
+    gameScene.addChild(treeSprite);
+    treeSprites.push(treeSprite);
+}
 
 
 function end() {
