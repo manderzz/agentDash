@@ -215,7 +215,18 @@ function setup() {
     });
     startGameScene.addChild(start);
     
-    
+    let startInstructions_style = new PIXI.TextStyle({
+        fontFamily: "Arial",
+        fontSize: 20,
+        fill: "red",
+        //strokeThickness: 1
+      });
+
+      startInstructions = new PIXI.Text("HOW TO PLAY:\nArrows Keys to Move\nSpacebar to Pause\nEnter to Resume\n", startInstructions_style);
+      startInstructions.anchor.set(0.5);
+      startInstructions.x = app.renderer.width/2 + 10;
+      startInstructions.y = app.stage.height + 150;
+      startGameScene.addChild(startInstructions);
     
 
     player = new PIXI.Sprite(textures[mappings["default"]]);
@@ -246,10 +257,12 @@ function setup() {
     scoreDisplay = new PIXI.Text("Score: " + Math.round(score), scoreDisplay_style);
     scoreDisplay.visible = false;
 
+
     app.stage.addChild(scoreDisplay);
     // if (state === end) {
     // 	scoreDisplay.position.set(600,app.stage.height+200);
     // }
+    scoreDisplay.position.set(scoreDisplay.width/2, scoreDisplay.height/2);
 
     // Initialize the Game Over scene
     gameOverScene = new PIXI.Container();
@@ -266,12 +279,12 @@ function setup() {
     message = new PIXI.Text("The End!", gameOver_style);
     message.anchor.set(0.5);
     message.x = 600;
-    message.y = app.stage.height;
+    message.y = app.renderer.height/2 - 100;
     gameOverScene.addChild(message);
 
     const restart = new PIXI.Text("Restart");
     restart.anchor.set(0.5);
-    restart.position.set(600,app.stage.height+200);
+    restart.position.set(600,app.renderer.height/2);
     restart.buttonMode = true;
 	restart.interactive = true;
 	restart.on('click', (event) => {
@@ -898,7 +911,7 @@ function end() {
     gameOverScene.visible = true;
     scoreDisplay.anchor.set(0.5);
     scoreDisplay.x = 600;
-    scoreDisplay.y = 400;
+    scoreDisplay.y = 200;
     // scoreDisplay.position.set(600,app.stage.height+200)
     // console.log(score);
     //All the code that should run at the end of the game
