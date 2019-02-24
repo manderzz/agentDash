@@ -251,7 +251,7 @@ function gameLoop(delta) {
     scoreDisplay.text = "Score: " + score;
     state(delta)
 }
-  
+// speed of snowman and tree are the same
 let treeSpeed = -5;
 let treeSpeedIncrease = -1;
 let treeSpawnRate = 100;
@@ -280,7 +280,7 @@ function play(delta) {
     else if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
         spawnSnowman();
     }
-
+  
     // Increase speed of trees as game progresses
     if (Math.round(totalElapsedTime) % 1000 == 0) {
         treeSpeed += treeSpeedIncrease;
