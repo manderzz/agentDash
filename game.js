@@ -43,15 +43,13 @@ let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
 let snowmanSpeedDueToDownKey = 0;
 
-<<<<<<< HEAD
 var score = 0;
-=======
+
 const mappings = {
     "left": 3,
     "right": 1,
     "default": 4
 };
->>>>>>> ba60ab92d0c44f7177f92dd2c91815a770d974ae
 
 //This `setup` function will run when the image has loaded
 function setup() {
@@ -111,12 +109,8 @@ function setup() {
         fontSize: 64,
         fill: "red"
     });
-<<<<<<< HEAD
-    message = new PIXI.Text("The End!", gameOver_style);
-=======
 
-    message = new PIXI.Text("The End!", style);
->>>>>>> ba60ab92d0c44f7177f92dd2c91815a770d974ae
+    message = new PIXI.Text("The End!", gameOver_style);
     message.x = 500;
     message.y = app.stage.height;
     gameOverScene.addChild(message);
@@ -182,12 +176,7 @@ function setup() {
     //Down
     down.press = () => {
         treeSpeedDueToDownKey = -1;
-<<<<<<< HEAD
-=======
         snowmanSpeedDueToDownKey = -1;
-        // player.vy = 5;
-        // player.vx = 0;
->>>>>>> ba60ab92d0c44f7177f92dd2c91815a770d974ae
     };
     down.release = () => {
         if (!up.isDown && player.vx === 0) {
