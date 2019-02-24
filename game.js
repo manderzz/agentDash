@@ -154,11 +154,7 @@ function setup() {
     //Left arrow key `press` method
     left.press = () => {
         //Change the cat's velocity when the key is pressed
-        if (player.x >= 5) {
-            player.vx = -5;
-        } else {
-            player.vx = 0;
-        }
+        player.vx = -5;
         player.vy = 0;
         player.texture = textures[mappings["left"]];
     };
@@ -166,30 +162,26 @@ function setup() {
     //Left arrow key `release` method
     left.release = () => {
         //If the left arrow has been released, and the right arrow isn't down,
-        //and the cat isn't moving vertically:
-        //Stop the cat
         if (!right.isDown && player.vy === 0) {
             player.vx = 0;
             player.texture = textures[mappings["default"]];
         }
     };
+
     //Up
-    up.press = () => {
-        player.vy = -5;
-        player.vx = 0;
-    };
-    up.release = () => {
-        if (!down.isDown && player.vx === 0) {
-            player.vy = 0;
-        }
-    };
+    // up.press = () => {
+    //     player.vy = -5;
+    //     player.vx = 0;
+    // };
+    // up.release = () => {
+    //     if (!down.isDown && player.vx === 0) {
+    //         player.vy = 0;
+    //     }
+    // };
+
     //Right
     right.press = () => {
-        if (player.x <= 1200 - player.width) {
-            player.vx = 5;
-        } else {
-            player.vx = 0;
-        }
+        player.vx = 5;
         player.vy = 0;
         player.texture = textures[mappings["right"]];
     };
@@ -280,8 +272,33 @@ let cloudSpawnRate = 120;
 
 function play(delta) {
     // Update player position
-    // player.y += player.vy;
-    player.x += player.vx;
+    //player.x += player.vx;
+
+    if (player.x <= 0) {
+    	if (player.vx < 0) {
+    		player.x += 0
+    	} else {
+    		player.x += player.vx
+    	}
+    }
+    else if (player.x >= 1200 - player.width) {
+    	if (player.vx > 0) {
+    		player.x += 0
+    	} else {
+    		player.x += player.vx
+    	}
+    }
+    else {
+    	player.x += player.vx
+    }    // if (player.x >= 1190) {
+    // 	player.x = 1;
+    // } else if (player.x <= 0) {
+    // 	player.x = 1;
+    // } else {
+    // 	player.x += player.vx;
+    // }
+
+
 
     // Move trees upward
     treeSprites.forEach((treeSprite) => {
