@@ -161,7 +161,7 @@ function setup() {
     	fill: "black"
     })
 
-    scoreDisplay = new PIXI.Text("Score: " + score,scoreDisplay_style);
+    scoreDisplay = new PIXI.Text("Score: " + Math.round(score), scoreDisplay_style);
 
     app.stage.addChild(scoreDisplay);
     // if (state === end) {
@@ -358,7 +358,7 @@ function keyboard(keyCode) {
 function gameLoop(delta) {
     //Runs the current game `state` in a loop and renders the sprites
     totalElapsedTime += delta;
-    scoreDisplay.text = "Score: " + score;
+    scoreDisplay.text = "Score: " + Math.round(score);
     state(delta)
 }
 
