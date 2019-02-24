@@ -167,6 +167,7 @@ function setup() {
     //Down
     down.press = () => {
         treeSpeedDueToDownKey = -1;
+        snowmanSpeedDueToDownKey = -1;
         // player.vy = 5;
         // player.vx = 0;
     };
@@ -177,6 +178,10 @@ function setup() {
 
         if (!up.isDown && player.vx === 0) {
             treeSpeedDueToDownKey = 0;
+        }
+
+        if (!up.isDown && player.vx === 0) {
+            snowmanSpeedDueToDownKey = 0;
         }
     };
 
