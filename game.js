@@ -26,13 +26,16 @@ const snowman = "images/snowman.png";
 const cloud = "images/clouds_opaque.png";
 const flags = "images/flags.png";
 
+const bigCloud = "images/bigcloud.png";
+const smallCloud = "images/smallcloud.png";
+
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
 
 //load an image and run the `setup` function when it's done
 PIXI.loader
 //   .add([mainCharacter])
-  .add([playerLeft, playerRight, playerDefault, tree, snowman, cloud, flags])
+  .add([playerLeft, playerRight, playerDefault, tree, snowman, bigCloud, smallCloud, flags])
   .load(setup);
 
 app.renderer.backgroundColor = 0xfcfcf9;
@@ -112,14 +115,18 @@ function setup() {
 
     // =============================================
     // Creating cloud sprites
-    let cloudTexture = PIXI.utils.TextureCache[cloud];
-    let cloudRectangle = new PIXI.Rectangle(0,0,550,275);
-    let subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
-    cloudTextures.push(subCloudTexture);
+    let bigCloudTexture = PIXI.utils.TextureCache[bigCloud];
+    let smallCloudTexture = PIXI.utils.TextureCache[smallCloud];
+    cloudTextures.push(bigCloudTexture);
+    cloudTextures.push(smallCloudTexture);
 
-    cloudRectangle = new PIXI.Rectangle(210,275,340,275);
-    subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
-    cloudTextures.push(subCloudTexture);
+    // let cloudRectangle = new PIXI.Rectangle(0,0,550,275);
+    // let subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
+    // cloudTextures.push(subCloudTexture);
+
+    // cloudRectangle = new PIXI.Rectangle(210,275,340,275);
+    // subCloudTexture = new PIXI.Texture(cloudTexture, cloudRectangle);
+    // cloudTextures.push(subCloudTexture);
     // =============================================
 
     // Array of textures for player
@@ -317,7 +324,7 @@ function setup() {
       }
     };
     down.release = () => {
-        if (!up.isDown && player.vx === 0) {
+        if (!up.isDown) {
             treeSpeedDueToDownKey = 0;
             snowmanSpeedDueToDownKey = 0;
             flagSpeedDuetoDownKey = 0;
@@ -419,9 +426,6 @@ function setup() {
 
             pause = false;
     };
-
-    
-
 
     // Set the game state to play
    // state = play;
@@ -555,7 +559,6 @@ function play(delta) {
       }
       cloudVerticalSpeed += cloudVerticalSpeedIncrease;
     }
-
 
     // Check for collision
     treeSprites.forEach((treeSprite) => {
