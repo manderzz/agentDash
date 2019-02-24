@@ -1,3 +1,4 @@
+
 let type = "WebGL"
 
 if(!PIXI.utils.isWebGLSupported()){
@@ -29,6 +30,7 @@ let app = new PIXI.Application({
 );
 
 const mainCharacter = "images/skier.png";
+const tree = "images/tree_a.png";
 
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
@@ -36,6 +38,7 @@ document.body.appendChild(app.view);
 //load an image and run the `setup` function when it's done
 PIXI.loader
   .add([mainCharacter])
+  .add([tree])
   .load(setup);
 
 app.renderer.backgroundColor = 0xfcfcf9;
@@ -48,6 +51,7 @@ function setup() {
     //Create the `tileset` sprite from the texture
     // let texture = PIXI.utils.TextureCache[mainCharacter];
     let texture = PIXI.BaseTexture.fromImage(mainCharacter);
+    let texture2 = PIXI.utils.TextureCache[tree];
 
     //Create a rectangle object that defines the position and
     //size of the sub-image you want to extract from the texture
@@ -75,6 +79,11 @@ function setup() {
 
     player.position.set(app.renderer.width/2, app.renderer.height/2);
     app.stage.addChild(player);
+
+    // set tree position
+    let treeSprite = new PIXI.Sprite(texture2);
+    treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (Math.random() * (app.renderer.height - 1) + 1));
+    app.stage.addChild(treeSprite);
 
     // Set the game state to play
     state = play;
