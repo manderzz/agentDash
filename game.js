@@ -40,6 +40,8 @@ PIXI.loader
 
 app.renderer.backgroundColor = 0xfcfcf9;
 
+let player, state;
+
 
 //This `setup` function will run when the image has loaded
 function setup() {
@@ -64,11 +66,34 @@ function setup() {
 
     let defaultTexture = textures[2];
 
-    let player = new PIXI.Sprite(defaultTexture);
+    player = new PIXI.Sprite(defaultTexture);
+
+    player.vx = 0;
+    player.vy = 0;
+
+    console.log("Setup done")
 
     player.position.set(app.renderer.width/2, app.renderer.height/2);
     app.stage.addChild(player);
 
-    app.renderer.render();
+    // Set the game state to play
+    state = play;
 
+    app.ticker.add(delta => gameLoop(delta));
+}
+
+
+function gameLoop(delta) {
+    //Runs the current game `state` in a loop and renders the sprites
+    state(delta)
+}
+  
+function play(delta) {
+    //All the game logic goes here
+    player.vx = 0.1;
+    player.x += player.vx;
+}
+
+function end() {
+    //All the code that should run at the end of the game
 }
