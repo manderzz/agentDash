@@ -20,6 +20,7 @@ const mainCharacter = "images/skier.png";
 const tree = "images/tree_a.png";
 const snowman = "images/snowman.png";
 const cloud = "images/clouds_opaque.png";
+const flags = "images/flags.png";
 
 //Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
@@ -41,11 +42,15 @@ let treeSprites = [];
 let snowmanTexture;
 let snowmanSprites = [];
 let cloudTextures = [];
-let cloudSprites = []
+let cloudSprites = [];
+let flagTextures = [];
+
+let flagSprites = [];
 
 let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
 let snowmanSpeedDueToDownKey = 0;
+let flagSpeedDuetoDownKey = 0;
 
 var score = 0;
 
@@ -53,6 +58,11 @@ const mappings = {
     "left": 3,
     "right": 1,
     "default": 4
+};
+
+const flagMappings = {
+    "blue":0,
+    "red":1
 };
 
 //This `setup` function will run when the image has loaded
@@ -66,6 +76,9 @@ function setup() {
     let texture = PIXI.BaseTexture.fromImage(mainCharacter);
     treeTexture = PIXI.utils.TextureCache[tree];
     snowmanTexture = PIXI.utils.TextureCache[snowman];
+
+    // ====================================================
+    let flagTexture = PIXI.BaseTexture.fromImage(flags);
 
     // =============================================
     // Creating cloud sprites
@@ -89,6 +102,16 @@ function setup() {
             textures.push(smallTexture); // Append texture to the array of textures
         }
     }
+    // Array of textures for flags
+    // 196x210
+
+    for (var i =0; i<3; i++){
+      for (var j = 0; j<2; j++){
+        let rectangle = new PIXI.Rectangle(i*65.3,j*105, 65.3, 105);
+        let smallTexture = new PIXI.Texture(flagTexture, rectangle);
+        flagTextures.push(smallTexture);
+      }
+    }
 
     player = new PIXI.Sprite(textures[mappings["default"]]);
 
@@ -99,6 +122,13 @@ function setup() {
     // Initial Position of the player
     player.position.set(app.renderer.width/2, app.renderer.height/10);
     gameScene.addChild(player);
+
+    // Placing flag on image
+    //flag = new PIXI.Sprite(flagTextures[flagMappings["red"]]);
+
+    //flag.position.set(500,500);
+    //gameScene.addChild(flag);
+
 
     //score display stuff
     let scoreDisplay_style = new PIXI.TextStyle({
@@ -191,14 +221,13 @@ function setup() {
     down.press = () => {
         treeSpeedDueToDownKey = -1;
         snowmanSpeedDueToDownKey = -1;
+        flagSpeedDuetoDownKey = -1;
     };
     down.release = () => {
         if (!up.isDown && player.vx === 0) {
             treeSpeedDueToDownKey = 0;
-        }
-
-        if (!up.isDown && player.vx === 0) {
             snowmanSpeedDueToDownKey = 0;
+            flagSpeedDuetoDownKey = 0;
         }
     };
 
@@ -260,6 +289,10 @@ let snowmanSpeed = -5;
 let snowmanSpeedIncrease = -1;
 let snowmanSpawnRate = 120;
 
+let flagSpeed = -5;
+let flagSpeedIncrease = -1;
+let flagSpawnRate = 80;
+
 function play(delta) {
     // Update player position
     // player.y += player.vy;
@@ -274,12 +307,19 @@ function play(delta) {
         snowmanSprite.y += snowmanSpeed + snowmanSpeedDueToDownKey;
     })
 
+    flagSprites.forEach((flagSprite) => {
+      flagSprite.y += flagSpeed + flagSpeedDuetoDownKey;
+  })
+
     if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
         spawnTree();
     }
     else if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
         spawnSnowman();
     }
+    else if (Math.round(totalElapsedTime) % flagSpawnRate == 0) {
+      spawnFlag();
+  }
   
     // Increase speed of trees as game progresses
     if (Math.round(totalElapsedTime) % 1000 == 0) {
@@ -295,6 +335,13 @@ function play(delta) {
             snowmanSpawnRate -= 10;
         }
     }
+
+    if (Math.round(totalElapsedTime) % 1000 == 0) {
+      flagSpeed += flagSpeedIncrease;
+      if (flagSpawnRate > 20) {
+          flagSpawnRate -= 10;
+      }
+  }
 
     // Check for collision
     treeSprites.forEach((treeSprite) => {
@@ -316,7 +363,17 @@ function play(delta) {
           } 
     })
 
-    score = Math.floor(totalElapsedTime*0.3);
+    flagSprites.forEach((flagSprite) => {
+      if (hitTestRectangle(player, flagSprite) && (flagSprite.visible)) {
+          //There's a collision
+          // message.text = "hit!";
+          flagSprite.visible = false;
+          score = score + 100;
+        } 
+  })
+
+    //score = Math.floor(totalElapsedTime*0.3);
+    score += delta*0.3;
 }
 
 function hitTestRectanglePoints(r1x, r1y, r1width, r1height,
@@ -401,6 +458,13 @@ function spawnTree() {
                     break;
                 }
             }
+            for(let i = 0; i < flagSprites.length; i++) {
+              var otherFlagSprite = flagSprites[i];
+              if (hitTestRectangle(treeSprite, otherFlagSprite) ) {
+                  collided = true;
+                  break;
+              }
+            }
     } while (collided);
     gameScene.addChild(treeSprite);
     treeSprites.push(treeSprite);
@@ -430,9 +494,50 @@ function spawnSnowman() {
                     break;
                 }
             }
+            for (let i = 0; i < flagSprites.length; i++) {
+              var otherFlagSprite = flagSprites[i];
+              if (hitTestRectangle(snowmanSprite, otherFlagSprite) ) {
+                  collided = true;
+                  break;
+              }
+          }
     } while (collided);
     gameScene.addChild(snowmanSprite);
     snowmanSprites.push(snowmanSprite);
+}
+function spawnFlag() {
+  // set flag position
+  let flagSprite = new PIXI.Sprite(flagTextures[flagMappings["red"]]);
+  let collided;
+  do {
+      let xSpawnPosition = Math.random() * (app.renderer.width - 1 - flagSprite.width) + 1;
+      flagSprite.position.set(xSpawnPosition, (app.renderer.height - 100));
+      collided = false;
+      for (let i = 0; i < treeSprites.length; i++) {
+          var otherTreeSprite = treeSprites[i];
+          if (hitTestRectangle(flagSprite, otherTreeSprite) ) {
+              collided = true;
+              break;
+          }
+      } 
+      if (!collided)
+          for (let i = 0; i < snowmanSprites.length; i++) {
+              var otherSnowmanSprite = snowmanSprites[i];
+              if (hitTestRectangle(flagSprite, otherSnowmanSprite) ) {
+                  collided = true;
+                  break;
+              }
+          }
+          for (let i = 0; i < flagSprites.length; i++) {
+            var otherFlagSprite = flagSprites[i];
+            if (hitTestRectangle(flagSprite, otherFlagSprite) ) {
+                collided = true;
+                break;
+            }
+        }
+  } while (collided);
+  gameScene.addChild(flagSprite);
+  flagSprites.push(flagSprite);
 }
 
 
