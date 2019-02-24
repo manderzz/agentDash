@@ -170,7 +170,6 @@ function setup() {
         if (!left.isDown && player.vy === 0) {
             player.vx = 0;
             player.texture = textures[mappings["default"]];
-            
         }
     };
     //Down
@@ -193,42 +192,41 @@ function setup() {
 
     app.ticker.add(delta => gameLoop(delta));
     app.ticker.start();
-    
 }
 //The `keyboard` helper function
 function keyboard(keyCode) {
-  var key = {};
-  key.code = keyCode;
-  key.isDown = false;
-  key.isUp = true;
-  key.press = undefined;
-  key.release = undefined;
-  //The `downHandler`
-  key.downHandler = event => {
-    if (event.keyCode === key.code) {
-      if (key.isUp && key.press) key.press();
-      key.isDown = true;
-      key.isUp = false;
-    }
-    event.preventDefault();
-  };
-  //The `upHandler`
-  key.upHandler = event => {
-    if (event.keyCode === key.code) {
-      if (key.isDown && key.release) key.release();
-      key.isDown = false;
-      key.isUp = true;
-    }
-    event.preventDefault();
-  };
-  //Attach event listeners
-  window.addEventListener(
-    "keydown", key.downHandler.bind(key), false
-  );
-  window.addEventListener(
-    "keyup", key.upHandler.bind(key), false
-  );
-  return key;
+    var key = {};
+    key.code = keyCode;
+    key.isDown = false;
+    key.isUp = true;
+    key.press = undefined;
+    key.release = undefined;
+    //The `downHandler`
+    key.downHandler = event => {
+        if (event.keyCode === key.code) {
+        if (key.isUp && key.press) key.press();
+        key.isDown = true;
+        key.isUp = false;
+        }
+        event.preventDefault();
+    };
+    //The `upHandler`
+    key.upHandler = event => {
+        if (event.keyCode === key.code) {
+        if (key.isDown && key.release) key.release();
+        key.isDown = false;
+        key.isUp = true;
+        }
+        event.preventDefault();
+    };
+    //Attach event listeners
+    window.addEventListener(
+        "keydown", key.downHandler.bind(key), false
+    );
+    window.addEventListener(
+        "keyup", key.upHandler.bind(key), false
+    );
+    return key;
 }
 
 
@@ -245,7 +243,7 @@ let treeSpawnRate = 100;
 
 let snowmanSpeed = -5;
 let snowmanSpeedIncrease = -1;
-let snowmanSpawnRate = 100;
+let snowmanSpawnRate = 120;
 
 function play(delta) {
     // Update player position
@@ -264,8 +262,7 @@ function play(delta) {
     if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
         spawnTree();
     }
-
-    if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
+    else if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
         spawnSnowman();
     }
 
@@ -372,7 +369,7 @@ function spawnTree() {
     let collided;
     do {
         let xSpawnPosition = Math.random() * (app.renderer.width - 1 - treeSprite.width) + 1;
-        treeSprite.position.set(xSpawnPosition, (app.renderer.height - 200));
+        treeSprite.position.set(xSpawnPosition, (app.renderer.height - 100));
         collided = false;
         for (let i = 0; i < treeSprites.length; i++) {
             var otherTreeSprite = treeSprites[i];
@@ -401,7 +398,7 @@ function spawnSnowman() {
     let collided;
     do {
         let xSpawnPosition = Math.random() * (app.renderer.width - 1 - snowmanSprite.width) + 1;
-        snowmanSprite.position.set(xSpawnPosition, (app.renderer.height - 200));
+        snowmanSprite.position.set(xSpawnPosition, (app.renderer.height - 50));
         collided = false;
         for (let i = 0; i < treeSprites.length; i++) {
             var otherTreeSprite = treeSprites[i];
