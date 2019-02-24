@@ -214,7 +214,7 @@ function setup() {
         //strokeThickness: 1
       });
 
-      startInstructions = new PIXI.Text("HOW TO PLAY:\nArrows Keys to Move\nSpacebar to Pause\nEnter to Resume\n\nCollect Flags to Score Points!", startInstructions_style);
+      startInstructions = new PIXI.Text("HOW TO PLAY:\n- Arrows Keys to Move\n- Spacebar to Pause\n- Enter to Resume\n\nCollect Flags to Score Bonus Points!", startInstructions_style);
       startInstructions.anchor.set(0.5);
       startInstructions.x = app.renderer.width/2 + 10;
       startInstructions.y = app.stage.height + 150;
