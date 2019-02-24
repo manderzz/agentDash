@@ -260,6 +260,11 @@ let snowmanSpeed = -5;
 let snowmanSpeedIncrease = -1;
 let snowmanSpawnRate = 120;
 
+let cloudHorizontalSpeed = 5;
+let cloudVerticalSpeed = 0;
+let cloudVerticalSpeedIncrease = -1;
+let cloudSpawnRate = 120;
+
 function play(delta) {
     // Update player position
     // player.y += player.vy;
@@ -274,11 +279,19 @@ function play(delta) {
         snowmanSprite.y += snowmanSpeed + snowmanSpeedDueToDownKey;
     })
 
+    cloudSprites.forEach((cloudSprite) => {
+        cloudSprite.x += cloudHorizontalSpeed;
+        cloudSprite.y += cloudVerticalSpeed + treeSpeedDueToDownKey;
+    })
+
     if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
         spawnTree();
     }
     else if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
         spawnSnowman();
+    } 
+    if (Math.round(totalElapsedTime) % cloudSpawnRate == 0) {
+    	spawnCloud();
     }
   
     // Increase speed of trees as game progresses
@@ -294,6 +307,10 @@ function play(delta) {
         if (snowmanSpawnRate > 20) {
             snowmanSpawnRate -= 10;
         }
+    }
+
+    if (Math.round(totalElapsedTime) % 1000 == 0) {
+        cloudVerticalSpeed += cloudVerticalSpeedIncrease;
     }
 
     // Check for collision
@@ -433,6 +450,16 @@ function spawnSnowman() {
     } while (collided);
     gameScene.addChild(snowmanSprite);
     snowmanSprites.push(snowmanSprite);
+}
+
+function spawnCloud() {
+	let cloudSprite = new PIXI.Sprite(cloudTextures[Math.floor(Math.random() * 2)]);
+	cloudSprite.width *= 0.4;
+	cloudSprite.height *= 0.4;
+    let ySpawnPosition = Math.random() * (app.renderer.height - 1 - cloudSprite.height) + 1;
+    cloudSprite.position.set(-80, ySpawnPosition);
+    gameScene.addChild(cloudSprite);
+    cloudSprites.push(cloudSprite);
 }
 
 
