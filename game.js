@@ -274,7 +274,7 @@ function setup() {
       }
     };
     down.release = () => {
-        if (!up.isDown && player.vx === 0) {
+        if (!up.isDown) {
             treeSpeedDueToDownKey = 0;
             snowmanSpeedDueToDownKey = 0;
             flagSpeedDuetoDownKey = 0;
