@@ -526,7 +526,9 @@ function play(delta) {
   })
 
     //score = Math.floor(totalElapsedTime*0.3);
-    score += delta*0.3;
+    if (!pause) {
+    	score += delta*0.3;
+    } 
 }
 
 function hitTestRectanglePoints(r1x, r1y, r1width, r1height,
