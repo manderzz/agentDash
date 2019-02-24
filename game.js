@@ -47,6 +47,21 @@ let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
 let snowmanSpeedDueToDownKey = 0;
 
+
+
+let treeSpeed = -5;
+let treeSpeedIncrease = -1;
+let treeSpawnRate = 100;
+
+let snowmanSpeed = -5;
+let snowmanSpeedIncrease = -1;
+let snowmanSpawnRate = 120;
+
+let cloudHorizontalSpeed = 5;
+let cloudVerticalSpeed = 0;
+let cloudVerticalSpeedIncrease = -1;
+let cloudSpawnRate = 120;
+
 var score = 0;
 
 const mappings = {
@@ -149,7 +164,9 @@ function setup() {
     let left = keyboard(37),
          up = keyboard(38),
          right = keyboard(39),
-         down = keyboard(40);
+         down = keyboard(40),
+         pause = keyboard(32),
+         enter = keyboard(13);
 
     //Left arrow key `press` method
     left.press = () => {
@@ -214,6 +231,53 @@ function setup() {
         }
     };
 
+    pause.press = () => {
+        
+            player.vx = 0;
+            treeSpeedDueToDownKey = 0;
+            snowmanSpeedDueToDownKey = 0;
+
+            treeSpeed = 0;
+            treeSpeedIncrease = 0;
+            treeSpawnRate = 0;
+
+            snowmanSpeed = 0;
+            snowmanSpeedIncrease = 0;
+            snowmanSpawnRate = 0;
+
+            cloudHorizontalSpeed = 0;
+            cloudVerticalSpeed = 0;
+            cloudVerticalSpeedIncrease = 0;
+            cloudSpawnRate = 0;
+
+            player.texture = textures[mappings["default"]];
+        
+    };
+
+
+    enter.press = () => {
+
+            player.vx = 0;
+
+            treeSpeed = -5;
+            treeSpeedIncrease = -1;
+            treeSpawnRate = 100;
+
+            snowmanSpeed = -5;
+            snowmanSpeedIncrease = -1;
+            snowmanSpawnRate = 120;
+
+            cloudHorizontalSpeed = 5;
+            cloudVerticalSpeed = 0;
+            cloudVerticalSpeedIncrease = -1;
+            cloudSpawnRate = 120;
+
+            player.texture = textures[mappings["default"]];
+    };
+
+    
+
+
     // Set the game state to play
     state = play;
 
@@ -265,18 +329,7 @@ function gameLoop(delta) {
 }
 
 // speed of snowman and tree are the same
-let treeSpeed = -5;
-let treeSpeedIncrease = -1;
-let treeSpawnRate = 100;
 
-let snowmanSpeed = -5;
-let snowmanSpeedIncrease = -1;
-let snowmanSpawnRate = 120;
-
-let cloudHorizontalSpeed = 5;
-let cloudVerticalSpeed = 0;
-let cloudVerticalSpeedIncrease = -1;
-let cloudSpawnRate = 120;
 
 function play(delta) {
     // Update player position
@@ -473,6 +526,7 @@ function spawnCloud() {
     cloudContainer.addChild(cloudSprite);
     cloudSprites.push(cloudSprite);
 }
+
 
 
 function end() {
