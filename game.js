@@ -150,7 +150,11 @@ function setup() {
     //Left arrow key `press` method
     left.press = () => {
         //Change the cat's velocity when the key is pressed
-        player.vx = -5;
+        if (player.x >= 5) {
+            player.vx = -5;
+        } else {
+            player.vx = 0;
+        }
         player.vy = 0;
         player.texture = textures[mappings["left"]];
     };
@@ -177,7 +181,11 @@ function setup() {
     };
     //Right
     right.press = () => {
-        player.vx = 5;
+        if (player.x <= 1200 - player.width) {
+            player.vx = 5;
+        } else {
+            player.vx = 0;
+        }
         player.vy = 0;
         player.texture = textures[mappings["right"]];
     };
@@ -251,6 +259,7 @@ function gameLoop(delta) {
     scoreDisplay.text = "Score: " + score;
     state(delta)
 }
+
 // speed of snowman and tree are the same
 let treeSpeed = -5;
 let treeSpeedIncrease = -1;
@@ -323,7 +332,6 @@ function play(delta) {
           } 
     })
 
-
     snowmanSprites.forEach((snowmanSprite) => {
         if (hitTestRectangle(player, snowmanSprite)) {
             //There's a collision
@@ -332,7 +340,6 @@ function play(delta) {
             state = end;
           } 
     })
-
     score = Math.floor(totalElapsedTime*0.3);
 }
 
