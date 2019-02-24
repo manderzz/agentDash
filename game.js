@@ -311,7 +311,8 @@ function play(delta) {
     })
 }
 
-function hitTestRectangle(r1, r2) {
+function hitTestRectanglePoints(r1x, r1y, r1width, r1height,
+    r2x, r2y, r2width, r2height) {
 
   //Define the variables we'll need to calculate
   let hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
@@ -320,24 +321,24 @@ function hitTestRectangle(r1, r2) {
   hit = false;
 
   //Find the center points of each sprite
-  r1.centerX = r1.x + r1.width / 2;
-  r1.centerY = r1.y + r1.height / 2;
-  r2.centerX = r2.x + r2.width / 2;
-  r2.centerY = r2.y + r2.height / 2;
+  r1centerX = r1x + r1width / 2;
+  r1centerY = r1y + r1height / 2;
+  r2centerX = r2x + r2width / 2;
+  r2centerY = r2y + r2height / 2;
 
   //Find the half-widths and half-heights of each sprite
-  r1.halfWidth = r1.width / 2;
-  r1.halfHeight = r1.height / 2;
-  r2.halfWidth = r2.width / 2;
-  r2.halfHeight = r2.height / 2;
+  r1halfWidth = r1width / 2;
+  r1halfHeight = r1height / 2;
+  r2halfWidth = r2width / 2;
+  r2halfHeight = r2height / 2;
 
   //Calculate the distance vector between the sprites
-  vx = r1.centerX - r2.centerX;
-  vy = r1.centerY - r2.centerY;
+  vx = r1centerX - r2centerX;
+  vy = r1centerY - r2centerY;
 
   //Figure out the combined half-widths and half-heights
-  combinedHalfWidths = r1.halfWidth + r2.halfWidth;
-  combinedHalfHeights = r1.halfHeight + r2.halfHeight;
+  combinedHalfWidths = r1halfWidth + r2halfWidth;
+  combinedHalfHeights = r1halfHeight + r2halfHeight;
 
   //Check for a collision on the x axis
   if (Math.abs(vx) < combinedHalfWidths) {
@@ -363,10 +364,36 @@ function hitTestRectangle(r1, r2) {
 };
 
 
+function hitTestRectangle(r1, r2) {
+    return hitTestRectanglePoints(r1.x, r1.y, r1.width, r1.height,
+        r2.x, r2.y, r2.width, r2.height);
+}
+
+
 function spawnTree() {
     // set tree position
     let treeSprite = new PIXI.Sprite(treeTexture);
-    treeSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (app.renderer.height - 200));
+    let collided;
+    do {
+        let xSpawnPosition = Math.random() * (app.renderer.width - 1 - treeSprite.width) + 1;
+        treeSprite.position.set(xSpawnPosition, (app.renderer.height - 200));
+        collided = false;
+        for (let i = 0; i < treeSprites.length; i++) {
+            var otherTreeSprite = treeSprites[i];
+            if (hitTestRectangle(treeSprite, otherTreeSprite) ) {
+                collided = true;
+                break;
+            }
+        } 
+        if (!collided)
+            for (let i = 0; i < snowmanSprites.length; i++) {
+                var otherSnowmanSprite = snowmanSprites[i];
+                if (hitTestRectangle(treeSprite, otherSnowmanSprite) ) {
+                    collided = true;
+                    break;
+                }
+            }
+    } while (collided);
     gameScene.addChild(treeSprite);
     treeSprites.push(treeSprite);
 }
@@ -375,7 +402,27 @@ function spawnTree() {
 function spawnSnowman() {
     // set tree position
     let snowmanSprite = new PIXI.Sprite(snowmanTexture);
-    snowmanSprite.position.set((Math.random() * (app.renderer.width - 1) + 1), (app.renderer.height - 200));
+    let collided;
+    do {
+        let xSpawnPosition = Math.random() * (app.renderer.width - 1 - snowmanSprite.width) + 1;
+        snowmanSprite.position.set(xSpawnPosition, (app.renderer.height - 200));
+        collided = false;
+        for (let i = 0; i < treeSprites.length; i++) {
+            var otherTreeSprite = treeSprites[i];
+            if (hitTestRectangle(snowmanSprite, otherTreeSprite) ) {
+                collided = true;
+                break;
+            }
+        } 
+        if (!collided)
+            for (let i = 0; i < snowmanSprites.length; i++) {
+                var otherSnowmanSprite = snowmanSprites[i];
+                if (hitTestRectangle(snowmanSprite, otherSnowmanSprite) ) {
+                    collided = true;
+                    break;
+                }
+            }
+    } while (collided);
     gameScene.addChild(snowmanSprite);
     snowmanSprites.push(snowmanSprite);
 }
