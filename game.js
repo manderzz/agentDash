@@ -46,7 +46,7 @@ let snowmanSprites = [];
 let cloudTextures = [];
 let cloudSprites = [];
 let flagTextures = [];
-
+let flagSprite;
 let flagSprites = [];
 
 // speed of snowman and tree are the same
@@ -60,7 +60,7 @@ let snowmanSpawnRate = 120;
 
 let flagSpeed = -5;
 let flagSpeedIncrease = -1;
-let flagSpawnRate = 80;
+let flagSpawnRate = 150;
 
 let cloudHorizontalSpeed = 5;
 let cloudVerticalSpeed = 0;
@@ -84,7 +84,11 @@ const mappings = {
 
 const flagMappings = {
     "blue":0,
-    "red":1
+    "red":1,
+    "blueRight":2,
+    "redRight":3,
+    "blueLeft":4,
+    "redLeft":5
 };
 
 //This `setup` function will run when the image has loaded
@@ -677,7 +681,26 @@ function spawnSnowman() {
 }
 function spawnFlag() {
   // set flag position
-  let flagSprite = new PIXI.Sprite(flagTextures[flagMappings["red"]]);
+  let randomFlag = Math.random();
+  if (randomFlag < 0.16)
+  {
+    flagSprite = new PIXI.Sprite(flagTextures[flagMappings["red"]]);
+  }
+  else if(randomFlag > 0.16 && randomFlag < 0.32){ 
+    flagSprite = new PIXI.Sprite(flagTextures[flagMappings["blue"]]);
+  }
+  else if(randomFlag > 0.32 && randomFlag < 0.48){ 
+    flagSprite = new PIXI.Sprite(flagTextures[flagMappings["redRight"]]);
+  }
+  else if(randomFlag > 0.48 && randomFlag < 0.64){ 
+    flagSprite = new PIXI.Sprite(flagTextures[flagMappings["redLeft"]]);
+  }
+  else if(randomFlag > 0.64 && randomFlag < 0.80){ 
+    flagSprite = new PIXI.Sprite(flagTextures[flagMappings["blueRight"]]);
+  }
+  else{ 
+    flagSprite = new PIXI.Sprite(flagTextures[flagMappings["blueLeft"]]);
+  }
   let collided;
   do {
       let xSpawnPosition = Math.random() * (app.renderer.width - 1 - flagSprite.width) + 1;
