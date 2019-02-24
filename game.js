@@ -175,44 +175,45 @@ function setup() {
         redFlagTextures.push(smallTexture);
     }
 
+    // ================================
+    // Initialize the start game scene
+    startGameScene = new PIXI.Container();
+    app.stage.addChild(startGameScene);
+    startGameScene.visible = true;
 
-        // Initialize the start game scene
-        startGameScene = new PIXI.Container();
-        app.stage.addChild(startGameScene);
-        startGameScene.visible = true;
+    let gameStart_style = new PIXI.TextStyle({
+        fontFamily: "Futura",
+        fontSize: 64,
+        fill: "black",
+        stroke: '#ff3300',
+        strokeThickness: 4,
+        dropShadow: true,
+        dropShadowColor: "#000000",
+        dropShadowBlur: 4,
+        dropShadowAngle: Math.PI / 6,
+        dropShadowDistance: 6
+    });
     
-        let gameStart_style = new PIXI.TextStyle({
-          fontFamily: "Futura",
-          fontSize: 64,
-          fill: "black",
-          stroke: '#ff3300',
-          strokeThickness: 4,
-          dropShadow: true,
-          dropShadowColor: "#000000",
-          dropShadowBlur: 4,
-          dropShadowAngle: Math.PI / 6,
-          dropShadowDistance: 6
-        });
-    
-        startMessage = new PIXI.Text("Agent Dash", gameStart_style);
-        startMessage.anchor.set(0.5);
-        startMessage.x = 600;
-        startMessage.y = app.stage.height + 50;
-        startGameScene.addChild(startMessage);
-    
-        const start = new PIXI.Text("Start Game");
-        start.anchor.set(0.5);
-        start.position.set(600,app.stage.height+200);
-        start.buttonMode = true;
-      start.interactive = true;
-      start.on('click', (event) => {
+    startMessage = new PIXI.Text("Agent Dash", gameStart_style);
+    startMessage.anchor.set(0.5);
+    startMessage.x = 600;
+    startMessage.y = app.stage.height + 50;
+    startGameScene.addChild(startMessage);
+
+    const start = new PIXI.Text("Start Game");
+    start.anchor.set(0.5);
+    start.position.set(600,app.stage.height+200);
+    start.buttonMode = true;
+    start.interactive = true;
+    start.on('click', (event) => {
         console.log("start game");
-           startGameScene.visible = false;
-           state = play;
-           app.ticker.add(delta => gameLoop(delta));
-           app.ticker.start();
-      });
-      startGameScene.addChild(start);
+        startGameScene.visible = false;
+        scoreDisplay.visible = true;
+        state = play;
+        app.ticker.add(delta => gameLoop(delta));
+        app.ticker.start();
+    });
+    startGameScene.addChild(start);
     
     
     
@@ -234,8 +235,8 @@ function setup() {
     //flag.position.set(500,500);
     //gameScene.addChild(flag);
 
-
-    //score display stuff
+    // =========================================================
+    // score display stuff
     let scoreDisplay_style = new PIXI.TextStyle({
     	fontFamily: "Futura",
     	fontSize: 18,
@@ -243,13 +244,14 @@ function setup() {
     })
 
     scoreDisplay = new PIXI.Text("Score: " + Math.round(score), scoreDisplay_style);
+    scoreDisplay.visible = false;
 
     app.stage.addChild(scoreDisplay);
     // if (state === end) {
     // 	scoreDisplay.position.set(600,app.stage.height+200);
     // }
 
-    // Initialize the game over scene
+    // Initialize the Game Over scene
     gameOverScene = new PIXI.Container();
     app.stage.addChild(gameOverScene);
     gameOverScene.visible = false;
@@ -260,6 +262,7 @@ function setup() {
         fill: "red"
     });
 
+    // "The End"
     message = new PIXI.Text("The End!", gameOver_style);
     message.anchor.set(0.5);
     message.x = 600;
@@ -609,8 +612,6 @@ function play(delta) {
     // Check for collision
     treeSprites.forEach((treeSprite) => {
         if (hitTestRectangle(player, treeSprite)) {
-            //There's a collision
-            // message.text = "hit!";
             treeSprite.tint = 0xff3300;
             state = end;
           } 
@@ -618,8 +619,6 @@ function play(delta) {
 
     snowmanSprites.forEach((snowmanSprite) => {
         if (hitTestRectangle(player, snowmanSprite)) {
-            //There's a collision
-            // message.text = "hit!";
             snowmanSprite.tint = 0xff3300;
             state = end;
           } 
@@ -627,8 +626,6 @@ function play(delta) {
 
     redFlagSprites.forEach((redFlagSprite) => {
       if (hitTestRectangle(player, redFlagSprite) && (redFlagSprite.visible)) {
-          //There's a collision
-          // message.text = "hit!";
           redFlagSprite.visible = false;
           score = score + 50;
         } 
@@ -636,8 +633,6 @@ function play(delta) {
 
   	blueFlagSprites.forEach((blueFlagSprite) => {
       if (hitTestRectangle(player, blueFlagSprite) && (blueFlagSprite.visible)) {
-          //There's a collision
-          // message.text = "hit!";
           blueFlagSprite.visible = false;
           score = score + 100;
         } 
