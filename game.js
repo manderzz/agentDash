@@ -55,16 +55,11 @@ let blueFlagTextures = [];
 let blueFlagSprite;
 let blueFlagSprites = [];
 
-// speed of snowman and tree are the same
+// Spawn rates
 let treeSpawnRate = 100;
-
 let snowmanSpawnRate = 120;
-
-
-// let flagSpawnRate = 150;
-
 let redFlagSpawnRate = 100;
-let blueFlagSpawnRate = 120;
+let blueFlagSpawnRate = 640;
 
 
 let cloudHorizontalSpeed = 5;
@@ -76,9 +71,6 @@ let speedIncrease = -1;
 let downAcceleration = 0;
 
 let totalElapsedTime = 0.0;
-// let treeSpeedDueToDownKey = 0;
-// let snowmanSpeedDueToDownKey = 0;
-// let flagSpeedDuetoDownKey = 0;
 
 let pause = false;
 
