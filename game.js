@@ -38,7 +38,7 @@ PIXI.loader
 app.renderer.backgroundColor = 0xfcfcf9;
 
 // Global variables
-let player, state, gameScene, gameOverScene, message, scoreDisplay, cloudContainer;
+let player, state, gameScene, gameOverScene, message, scoreDisplay, startMessage, cloudContainer;
 let treeTexture;
 let treeSprites = [];
 let snowmanTexture;
@@ -154,6 +154,48 @@ function setup() {
       }
     }
 
+
+        // Initialize the start game scene
+        startGameScene = new PIXI.Container();
+        app.stage.addChild(startGameScene);
+        startGameScene.visible = true;
+    
+        let gameStart_style = new PIXI.TextStyle({
+          fontFamily: "Futura",
+          fontSize: 64,
+          fill: "black",
+          stroke: '#ff3300',
+          strokeThickness: 4,
+          dropShadow: true,
+          dropShadowColor: "#000000",
+          dropShadowBlur: 4,
+          dropShadowAngle: Math.PI / 6,
+          dropShadowDistance: 6
+        });
+    
+        startMessage = new PIXI.Text("Agent Dash", gameStart_style);
+        startMessage.anchor.set(0.5);
+        startMessage.x = 600;
+        startMessage.y = app.stage.height + 50;
+        startGameScene.addChild(startMessage);
+    
+        const start = new PIXI.Text("Start Game");
+        start.anchor.set(0.5);
+        start.position.set(600,app.stage.height+200);
+        start.buttonMode = true;
+      start.interactive = true;
+      start.on('click', (event) => {
+        console.log("start game");
+           startGameScene.visible = false;
+           state = play;
+           app.ticker.add(delta => gameLoop(delta));
+           app.ticker.start();
+      });
+      startGameScene.addChild(start);
+    
+    
+    
+
     player = new PIXI.Sprite(textures[mappings["default"]]);
 
     // Initial velocity (note: vertical velocity is obsolete)
@@ -161,7 +203,8 @@ function setup() {
     player.vy = 0;
 
     // Initial Position of the player
-    player.position.set(app.renderer.width/2, app.renderer.height/10);
+    player.anchor.set(0.5)
+    player.position.set(app.renderer.width/2, app.renderer.height - 650);
     gameScene.addChild(player);
 
     // Placing flag on image
@@ -381,10 +424,10 @@ function setup() {
 
 
     // Set the game state to play
-    state = play;
+   // state = play;
 
-    app.ticker.add(delta => gameLoop(delta));
-    app.ticker.start();
+    // app.ticker.add(delta => gameLoop(delta));
+    // app.ticker.start();
 }
 //The `keyboard` helper function
 function keyboard(keyCode) {
@@ -751,7 +794,7 @@ function end() {
     cloudContainer.visible = false;
     gameOverScene.visible = true;
     scoreDisplay.x = 600;
-    scoreDisplay.y = 300;
+    scoreDisplay.y = 420;
     // scoreDisplay.position.set(600,app.stage.height+200)
     // console.log(score);
     //All the code that should run at the end of the game
