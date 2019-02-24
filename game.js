@@ -49,6 +49,9 @@ let player, state, gameScene, gameOverScene, message;
 let treeTexture;
 let treeSprites = [];
 
+let totalElapsedTime = 0.0;
+let treeSpeedDueToDownKey = 0;
+
 //This `setup` function will run when the image has loaded
 function setup() {
     // Game Scene and Game Over Scene
@@ -144,12 +147,17 @@ function setup() {
     };
     //Down
     down.press = () => {
-        player.vy = 5;
-        player.vx = 0;
+        treeSpeedDueToDownKey = -1;
+        // player.vy = 5;
+        // player.vx = 0;
     };
     down.release = () => {
+        // if (!up.isDown && player.vx === 0) {
+        // player.vy = 0;
+        // }
+
         if (!up.isDown && player.vx === 0) {
-        player.vy = 0;
+            treeSpeedDueToDownKey = 0;
         }
     };
 
@@ -157,6 +165,7 @@ function setup() {
     state = play;
 
     app.ticker.add(delta => gameLoop(delta));
+    app.ticker.start();
     
 }
 //The `keyboard` helper function
@@ -198,22 +207,32 @@ function keyboard(keyCode) {
 
 function gameLoop(delta) {
     //Runs the current game `state` in a loop and renders the sprites
+    totalElapsedTime += delta;
     state(delta)
 }
   
-const treeSpeed = -2;
+let treeSpeed = -2;
+let treeSpeedIncrease = -1;
 
 function play(delta) {
     // Update player position
-    player.y += player.vy;
+    // player.y += player.vy;
     player.x += player.vx;
 
     // Move trees upward
     treeSprites.forEach((treeSprite) => {
-        treeSprite.y += treeSpeed;
+        treeSprite.y += treeSpeed + treeSpeedDueToDownKey;
     })
 
-    spawnTree();
+    if (Math.round(totalElapsedTime) % 100 == 0) {
+        spawnTree();
+    }
+
+    // Increase speed of trees as game progresses
+    if (Math.round(totalElapsedTime) % 1000 == 0) {
+        treeSpeed += treeSpeedIncrease;
+    }
+
 
     // console.log(delta);
     // // Spawn a new tree once in a while
