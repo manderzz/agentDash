@@ -70,7 +70,16 @@ let cloudVerticalSpeed = 0;
 let cloudVerticalSpeedIncrease = -1;
 let cloudSpawnRate = 120;
 
+
+// Elapsed Time
 let totalElapsedTime = 0.0;
+// // Velocity of the skier
+// let skierBaseSpeed = 5;
+// let skierDownAcceleration = 2;
+
+// Total Distance Travelled
+let totalDistance = 0;  // Velocity * Time
+
 let treeSpeedDueToDownKey = 0;
 let snowmanSpeedDueToDownKey = 0;
 let flagSpeedDuetoDownKey = 0;
@@ -390,6 +399,7 @@ function setup() {
     app.ticker.add(delta => gameLoop(delta));
     app.ticker.start();
 }
+
 //The `keyboard` helper function
 function keyboard(keyCode) {
     var key = {};
@@ -454,17 +464,10 @@ function play(delta) {
     }
     else {
     	player.x += player.vx
-    }    // if (player.x >= 1190) {
-    // 	player.x = 1;
-    // } else if (player.x <= 0) {
-    // 	player.x = 1;
-    // } else {
-    // 	player.x += player.vx;
-    // }
+    } 
 
-
-
-    // Move trees upward
+    // ===================================================
+    // Move objects upward
     treeSprites.forEach((treeSprite) => {
         treeSprite.y += treeSpeed + treeSpeedDueToDownKey;
     })
@@ -476,21 +479,25 @@ function play(delta) {
     flagSprites.forEach((flagSprite) => {
       flagSprite.y += flagSpeed + flagSpeedDuetoDownKey;
     })
+
     cloudSprites.forEach((cloudSprite) => {
         cloudSprite.x += cloudHorizontalSpeed;
         cloudSprite.y += cloudVerticalSpeed + treeSpeedDueToDownKey;
     })
-
+    // ===================================================
     if (Math.round(totalElapsedTime) % treeSpawnRate == 0) {
         spawnTree();
     }
-    else if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
+    
+    if (Math.round(totalElapsedTime) % snowmanSpawnRate == 0) {
         spawnSnowman();
     } 
+    
     if (Math.round(totalElapsedTime) % cloudSpawnRate == 0) {
     	spawnCloud();
     }
-    else if (Math.round(totalElapsedTime) % flagSpawnRate == 0) {
+    
+    if (Math.round(totalElapsedTime) % flagSpawnRate == 0) {
       spawnFlag();
   }
   
@@ -537,13 +544,18 @@ function play(delta) {
     })
 
     flagSprites.forEach((flagSprite) => {
-      if (hitTestRectangle(player, flagSprite) && (flagSprite.visible)) {
-          //There's a collision
-          // message.text = "hit!";
-          flagSprite.visible = false;
-          score = score + 100;
+        if (hitTestRectangle(player, flagSprite) && (flagSprite.visible)) {
+            //There's a collision
+            // message.text = "hit!";
+            flagSprite.visible = false;
+            score = score + 100;
         } 
-  })
+    })
+
+    // Update Distance Travelled
+    totalDistance -= (treeSpeed + treeSpeedDueToDownKey)*app.ticker.elapsedMS / 1000;
+    // totalDistance = Math.round(totalDistance);
+    console.log(totalDistance);
 
     //score = Math.floor(totalElapsedTime*0.3);
     if (!pause) {
