@@ -43,7 +43,15 @@ let totalElapsedTime = 0.0;
 let treeSpeedDueToDownKey = 0;
 let snowmanSpeedDueToDownKey = 0;
 
+<<<<<<< HEAD
 var score = 0;
+=======
+const mappings = {
+    "left": 3,
+    "right": 1,
+    "default": 4
+};
+>>>>>>> ba60ab92d0c44f7177f92dd2c91815a770d974ae
 
 //This `setup` function will run when the image has loaded
 function setup() {
@@ -69,9 +77,7 @@ function setup() {
         }
     }
 
-    let defaultTexture = textures[2];
-
-    player = new PIXI.Sprite(defaultTexture);
+    player = new PIXI.Sprite(textures[mappings["default"]]);
 
     // Initial velocity (note: vertical velocity is obsolete)
     player.vx = 0;
@@ -105,7 +111,12 @@ function setup() {
         fontSize: 64,
         fill: "red"
     });
+<<<<<<< HEAD
     message = new PIXI.Text("The End!", gameOver_style);
+=======
+
+    message = new PIXI.Text("The End!", style);
+>>>>>>> ba60ab92d0c44f7177f92dd2c91815a770d974ae
     message.x = 500;
     message.y = app.stage.height;
     gameOverScene.addChild(message);
@@ -132,6 +143,7 @@ function setup() {
         //Change the cat's velocity when the key is pressed
         player.vx = -5;
         player.vy = 0;
+        player.texture = textures[mappings["left"]];
     };
     
     //Left arrow key `release` method
@@ -140,7 +152,8 @@ function setup() {
         //and the cat isn't moving vertically:
         //Stop the cat
         if (!right.isDown && player.vy === 0) {
-        player.vx = 0;
+            player.vx = 0;
+            player.texture = textures[mappings["default"]];
         }
     };
     //Up
@@ -150,26 +163,39 @@ function setup() {
     };
     up.release = () => {
         if (!down.isDown && player.vx === 0) {
-        player.vy = 0;
+            player.vy = 0;
         }
     };
     //Right
     right.press = () => {
         player.vx = 5;
         player.vy = 0;
+        player.texture = textures[mappings["right"]];
     };
     right.release = () => {
         if (!left.isDown && player.vy === 0) {
-        player.vx = 0;
+            player.vx = 0;
+            player.texture = textures[mappings["default"]];
+            
         }
     };
     //Down
     down.press = () => {
         treeSpeedDueToDownKey = -1;
+<<<<<<< HEAD
+=======
+        snowmanSpeedDueToDownKey = -1;
+        // player.vy = 5;
+        // player.vx = 0;
+>>>>>>> ba60ab92d0c44f7177f92dd2c91815a770d974ae
     };
     down.release = () => {
         if (!up.isDown && player.vx === 0) {
             treeSpeedDueToDownKey = 0;
+        }
+
+        if (!up.isDown && player.vx === 0) {
+            snowmanSpeedDueToDownKey = 0;
         }
     };
 
@@ -224,11 +250,11 @@ function gameLoop(delta) {
     state(delta)
 }
   
-let treeSpeed = -2;
+let treeSpeed = -5;
 let treeSpeedIncrease = -1;
 let treeSpawnRate = 100;
 
-let snowmanSpeed = -2;
+let snowmanSpeed = -5;
 let snowmanSpeedIncrease = -1;
 let snowmanSpawnRate = 100;
 
